@@ -45,7 +45,8 @@ describe('ChatAssistant Selectors', () => {
     settingsOpen: false,
     loadedChatPages: 0,
     agents: CHAT_AGENTS,
-    selectedAgentId: DEFAULT_AGENT_ID
+    selectedAgentId: DEFAULT_AGENT_ID,
+    awaitingAssistantResponse: false
   }
 
   describe('chatAssistantSelectors', () => {
@@ -96,7 +97,8 @@ describe('ChatAssistant Selectors', () => {
         settingsOpen: false,
         agents: CHAT_AGENTS,
         selectedAgentId: DEFAULT_AGENT_ID,
-        showAgentSelector: true
+        showAgentSelector: true,
+        sendMessageDisabled: false
       }
 
       expect(result).toEqual(expected)
@@ -367,6 +369,58 @@ describe('ChatAssistant Selectors', () => {
 
       expect(result.currentMessages?.[0].userName).toBe('John Doe')
       expect(result.currentMessages?.[1].userName).toBe('Jane Smith')
+    })
+
+    it('should set sendMessageDisabled to true when current chat is AiChat and awaitingAssistantResponse is true', () => {
+      const mockState: ChatAssistantState = {
+        ...baseMockState,
+        awaitingAssistantResponse: true
+      }
+
+      const result = fromSelectors.selectChatAssistantViewModel.projector(
+        mockChats,
+        mockCurrentChat,
+        mockMessages,
+        mockState,
+        fromSelectors.selectChatTopic.projector(mockCurrentChat, mockState)
+      )
+
+      expect(result.sendMessageDisabled).toBe(true)
+    })
+
+    it('should set sendMessageDisabled to false when current chat is AiChat and awaitingAssistantResponse is false', () => {
+      const mockState: ChatAssistantState = {
+        ...baseMockState,
+        awaitingAssistantResponse: false
+      }
+
+      const result = fromSelectors.selectChatAssistantViewModel.projector(
+        mockChats,
+        mockCurrentChat,
+        mockMessages,
+        mockState,
+        fromSelectors.selectChatTopic.projector(mockCurrentChat, mockState)
+      )
+
+      expect(result.sendMessageDisabled).toBe(false)
+    })
+
+    it('should set sendMessageDisabled to false when current chat is not AiChat even if awaitingAssistantResponse is true', () => {
+      const directChat = { ...mockCurrentChat, type: ChatType.HumanDirectChat }
+      const mockState: ChatAssistantState = {
+        ...baseMockState,
+        awaitingAssistantResponse: true
+      }
+
+      const result = fromSelectors.selectChatAssistantViewModel.projector(
+        mockChats,
+        directChat,
+        mockMessages,
+        mockState,
+        fromSelectors.selectChatTopic.projector(directChat, mockState)
+      )
+
+      expect(result.sendMessageDisabled).toBe(false)
     })
   })
 })

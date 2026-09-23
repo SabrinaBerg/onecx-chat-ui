@@ -103,6 +103,7 @@
           formControlName="message"
           class="message-input w-full"
           rows="4"
+          [attr.disabled]="sendMessageDisabled ? 'disabled' : null"
           (keydown.enter)="$event.preventDefault(); sendButtonClicked()"
         ></textarea>
         <div class="message-box-footer flex align-items-center justify-content-between">
@@ -132,9 +133,9 @@
             [text]="true"
             severity="contrast"
             (onClick)="sendButtonClicked()"
-            [disabled]="formGroup.invalid"
-            [ariaLabel]="'CHAT.ACTIONS.SEND' | translate"
-            [pTooltip]="'CHAT.ACTIONS.SEND' | translate"
+            [disabled]="formGroup.invalid || sendMessageDisabled"
+            [ariaLabel]="(sendMessageDisabled ? 'CHAT.ACTIONS.SEND_DISABLED' : 'CHAT.ACTIONS.SEND') | translate"
+            [pTooltip]="(sendMessageDisabled ? 'CHAT.ACTIONS.SEND_DISABLED' : 'CHAT.ACTIONS.SEND') | translate"
             tooltipPosition="top"
           />
         </div>

@@ -16,7 +16,8 @@ export const initialState: ChatAssistantState = {
   loadedChatPages: 0,
   settingsOpen: false,
   agents: CHAT_AGENTS,
-  selectedAgentId: DEFAULT_AGENT_ID
+  selectedAgentId: DEFAULT_AGENT_ID,
+  awaitingAssistantResponse: false
 }
 
 const cleanTemp = (m?: { id?: string }) => {
@@ -51,6 +52,7 @@ export const chatAssistantReducer = createReducer(
     const showLoadingMessage = shouldShowLoadingMessage(state)
     return {
       ...state,
+      awaitingAssistantResponse: showLoadingMessage,
       currentMessages: [
         {
           type: MessageType.Human,
@@ -76,6 +78,7 @@ export const chatAssistantReducer = createReducer(
   on(ChatAssistantActions.messageSendingFailed, (state: ChatAssistantState, action) => {
     return {
       ...state,
+      awaitingAssistantResponse: false,
       currentMessages: [
         {
           type: MessageType.Human,
@@ -102,12 +105,14 @@ export const chatAssistantReducer = createReducer(
   on(ChatAssistantActions.messagesLoaded, (state: ChatAssistantState, action) => {
     return {
       ...state,
+      awaitingAssistantResponse: false,
       currentMessages: action.messages
     }
   }),
   on(ChatAssistantActions.chatSelected, (state: ChatAssistantState, action) => {
     return {
       ...state,
+      awaitingAssistantResponse: false,
       currentChat: action.chat,
       currentMessages: [],
       settingsOpen: false
@@ -142,6 +147,7 @@ export const chatAssistantReducer = createReducer(
   }),
   on(ChatAssistantActions.backButtonClicked, (state) => ({
     ...state,
+    awaitingAssistantResponse: false,
     selectedChatMode: null,
     currentChat: undefined,
     currentMessages: [],
@@ -158,6 +164,7 @@ export const chatAssistantReducer = createReducer(
   })),
   on(ChatAssistantActions.newChatClicked, (state, action) => ({
     ...state,
+    awaitingAssistantResponse: false,
     currentChat: {
       id: 'new',
       type: action.mode,
@@ -190,5 +197,9 @@ export const chatAssistantReducer = createReducer(
   on(ChatAssistantActions.agentSelected, (state, action) => ({
     ...state,
     selectedAgentId: action.agentId
+  })),
+  on(ChatAssistantActions.awaitAssistantResponseTimedOut, (state) => ({
+    ...state,
+    awaitingAssistantResponse: false
   }))
 )

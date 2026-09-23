@@ -16,7 +16,10 @@ import {
   map,
   Observable,
   of,
-  switchMap
+  race,
+  switchMap,
+  take,
+  timer
 } from 'rxjs'
 
 import { UserService } from '@onecx/angular-integration-interface'
@@ -42,6 +45,7 @@ import { ChatAgent, DEFAULT_AGENT_ID } from './chat-assistant.state'
 const PAGE_SIZE = 20
 const CHAT_TOPIC_LENGTH = 30
 const CHAT_SEARCH_DELAY = 500
+const ASSISTANT_RESPONSE_TIMEOUT_MS = 30000
 
 const isSyncMessageProcessingEnabled = () => environment.chatMessageProcessingMode === 'sync'
 
@@ -474,6 +478,29 @@ export class ChatAssistantEffects implements OnDestroy {
             )
           )
       })
+    )
+  })
+
+  awaitAssistantResponseTimeout$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(ChatAssistantActions.messageSent),
+      concatLatestFrom(() => [this.store.select(chatAssistantSelectors.selectCurrentChat)]),
+      filter(([, chat]) => chat !== undefined && chat.type === ChatType.AiChat),
+      switchMap(([action, chat]) => {
+        const activeChatId = chat?.id ?? ''
+
+        return race(
+          this.actions$.pipe(
+            ofType(ChatAssistantActions.messagesLoaded, ChatAssistantActions.messageSendingFailed),
+            concatLatestFrom(() => [this.store.select(chatAssistantSelectors.selectCurrentChat)]),
+            filter(([, currentChat]) => currentChat?.id === activeChatId),
+            take(1),
+            map(() => null)
+          ),
+          timer(ASSISTANT_RESPONSE_TIMEOUT_MS).pipe(map(() => ChatAssistantActions.awaitAssistantResponseTimedOut()))
+        )
+      }),
+      filter((result) => result !== null)
     )
   })
 }

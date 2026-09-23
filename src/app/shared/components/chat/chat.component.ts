@@ -161,6 +161,7 @@ export class ChatComponent implements AfterViewInit, AfterViewChecked, OnChanges
   }
 
   sendButtonClicked() {
+    if (this.sendMessageDisabled) return
     if (!this.formGroup.value['message'] || this.formGroup.value['message'] === '') return
     this.sendMessage.emit(this.formGroup.value['message'])
     this.formGroup.reset()

@@ -43,6 +43,7 @@
               [agents]="vm.agents"
               [selectedAgentId]="vm.selectedAgentId"
               [showAgentSelector]="vm.showAgentSelector"
+              [sendMessageDisabled]="vm.sendMessageDisabled"
               (sendMessage)="sendMessage($event)"
               (retrySendMessage)="sendMessage($event)"
               (agentSelected)="agentSelected($event)"

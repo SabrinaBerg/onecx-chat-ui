@@ -126,6 +126,7 @@
       "SAVE": "Save",
       "RETRY": "Retry",
       "SEND": "Send message",
+      "SEND_DISABLED": "Waiting for response...",
       "SCROLL_TO_LATEST": "Scroll to latest messages"
     },
     "ERROR_MESSAGES": {

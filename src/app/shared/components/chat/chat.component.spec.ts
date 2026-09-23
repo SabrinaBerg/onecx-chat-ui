@@ -141,6 +141,27 @@ describe('ChatComponent', () => {
 
       expect(component.formGroup.reset).toHaveBeenCalled()
     })
+
+    it('should not emit sendMessage when sendMessageDisabled is true', () => {
+      component.sendMessageDisabled = true
+      jest.spyOn(component.sendMessage, 'emit')
+
+      component.formGroup.patchValue({ message: 'Test message' })
+      component.sendButtonClicked()
+
+      expect(component.sendMessage.emit).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('template bindings', () => {
+    it('should disable the textarea when sendMessageDisabled input is true', () => {
+      fixture.componentRef.setInput('sendMessageDisabled', true)
+      fixture.detectChanges()
+
+      const textarea: HTMLTextAreaElement = fixture.nativeElement.querySelector('.message-input')
+
+      expect(textarea.disabled).toBe(true)
+    })
   })
 
   describe('retrySending', () => {

@@ -44,7 +44,8 @@ describe('ChatAssistant Reducer', () => {
         totalAvailableChats: undefined,
         loadedChatPages: 0,
         agents: CHAT_AGENTS,
-        selectedAgentId: DEFAULT_AGENT_ID
+        selectedAgentId: DEFAULT_AGENT_ID,
+        awaitingAssistantResponse: false
       })
     })
 
@@ -136,6 +137,46 @@ describe('ChatAssistant Reducer', () => {
       expect(result.currentMessages?.some((m) => m.id === 'ai-temp')).toBe(false)
     })
 
+    it('should set awaitingAssistantResponse to true when current chat type is AiChat', () => {
+      const stateWithAiChat: ChatAssistantState = {
+        ...initialState,
+        currentChat: {
+          id: 'ai-chat-2',
+          type: ChatType.AiChat,
+          topic: 'AI Chat',
+          participants: []
+        }
+      }
+
+      const action = ChatAssistantActions.messageSent({
+        message: 'Hello AI'
+      })
+
+      const result = chatAssistantReducer(stateWithAiChat, action)
+
+      expect(result.awaitingAssistantResponse).toBe(true)
+    })
+
+    it('should keep awaitingAssistantResponse false when current chat type is not AiChat', () => {
+      const stateWithDirectChat: ChatAssistantState = {
+        ...initialState,
+        currentChat: {
+          id: 'direct-chat-2',
+          type: ChatType.HumanDirectChat,
+          topic: 'Direct Chat',
+          participants: []
+        }
+      }
+
+      const action = ChatAssistantActions.messageSent({
+        message: 'Hello direct chat'
+      })
+
+      const result = chatAssistantReducer(stateWithDirectChat, action)
+
+      expect(result.awaitingAssistantResponse).toBe(false)
+    })
+
     it('should filter out temp messages when adding new message', () => {
       const stateWithTempMessages: ChatAssistantState = {
         ...initialState,
@@ -223,6 +264,22 @@ describe('ChatAssistant Reducer', () => {
       expect(result.currentMessages).toHaveLength(2)
       expect(result.currentMessages?.some((m) => m.id === 'temp-456')).toBe(false)
       expect(result.currentMessages?.some((m) => m.id === 'msg1')).toBe(true)
+    })
+
+    it('should reset awaitingAssistantResponse to false', () => {
+      const stateAwaitingResponse: ChatAssistantState = {
+        ...initialState,
+        awaitingAssistantResponse: true
+      }
+
+      const action = ChatAssistantActions.messageSendingFailed({
+        message: 'Failed message',
+        error: 'Network error'
+      })
+
+      const result = chatAssistantReducer(stateAwaitingResponse, action)
+
+      expect(result.awaitingAssistantResponse).toBe(false)
     })
   })
 
@@ -323,6 +380,21 @@ describe('ChatAssistant Reducer', () => {
         ...initialState,
         currentMessages: mockMessages
       })
+    })
+
+    it('should reset awaitingAssistantResponse to false', () => {
+      const stateAwaitingResponse: ChatAssistantState = {
+        ...initialState,
+        awaitingAssistantResponse: true
+      }
+
+      const action = ChatAssistantActions.messagesLoaded({
+        messages: mockMessages
+      })
+
+      const result = chatAssistantReducer(stateAwaitingResponse, action)
+
+      expect(result.awaitingAssistantResponse).toBe(false)
     })
   })
 
@@ -786,6 +858,21 @@ describe('ChatAssistant Reducer', () => {
         ...initialState,
         selectedAgentId: 'test-agent-id'
       })
+    })
+  })
+
+  describe('awaitAssistantResponseTimedOut action', () => {
+    it('should reset awaitingAssistantResponse to false', () => {
+      const stateAwaitingResponse: ChatAssistantState = {
+        ...initialState,
+        awaitingAssistantResponse: true
+      }
+
+      const action = ChatAssistantActions.awaitAssistantResponseTimedOut()
+
+      const result = chatAssistantReducer(stateAwaitingResponse, action)
+
+      expect(result.awaitingAssistantResponse).toBe(false)
     })
   })
 })

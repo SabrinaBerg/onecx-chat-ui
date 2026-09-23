@@ -34,6 +34,7 @@ export const ChatAssistantActions = createActionGroup({
       message: string
       error: string | null
     }>(),
+    'await assistant response timed out': emptyProps(),
     'create new chat for message': props<{
       message: string
     }>(),
