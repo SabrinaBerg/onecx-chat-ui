@@ -25,7 +25,8 @@
     "format": "nx lint --fix && npx prettier --write .",
     "audit": "npm audit --audit-level=high",
     "browser": "npx browserslist",
-    "prepare": "husky || true",
+    "prepare": "husky",
+    "prettier": "npx prettier -c --cache .",
     "test": "nx test",
     "test:ci": "nx test --watch=false --coverage"
   },
