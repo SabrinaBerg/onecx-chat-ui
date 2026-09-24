@@ -89,6 +89,16 @@ export const ChatAssistantActions = createActionGroup({
       reset: boolean
     }>(),
     'chat notification ignored': emptyProps(),
-    'agent selected': props<{ agentId: string }>()
+    'agent selected': props<{ agentId: string }>(),
+    'voice chat enabled': emptyProps(),
+    'voice chat disabled': emptyProps(),
+    'voice user transcript received': props<{
+      text: string
+      isFinal: boolean
+    }>(),
+    'voice bot transcript received': props<{
+      text: string
+      spoken: boolean
+    }>()
   }
 })

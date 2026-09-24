@@ -44,13 +44,111 @@ describe('ChatAssistant Reducer', () => {
         totalAvailableChats: undefined,
         loadedChatPages: 0,
         agents: CHAT_AGENTS,
-        selectedAgentId: DEFAULT_AGENT_ID
+        selectedAgentId: DEFAULT_AGENT_ID,
+        voiceChatEnabled: false
       })
     })
 
     it('should return initial state when no action is provided', () => {
       const result = chatAssistantReducer(undefined, { type: 'UNKNOWN' })
       expect(result).toEqual(initialState)
+    })
+  })
+
+  describe('voice chat toggle actions', () => {
+    it('should set voiceChatEnabled to true when voiceChatEnabled is dispatched', () => {
+      const action = ChatAssistantActions.voiceChatEnabled()
+      const result = chatAssistantReducer(initialState, action)
+      expect(result.voiceChatEnabled).toBe(true)
+    })
+
+    it('should set voiceChatEnabled to false when voiceChatDisabled is dispatched', () => {
+      const stateWithVoiceChat: ChatAssistantState = { ...initialState, voiceChatEnabled: true }
+      const action = ChatAssistantActions.voiceChatDisabled()
+      const result = chatAssistantReducer(stateWithVoiceChat, action)
+      expect(result.voiceChatEnabled).toBe(false)
+    })
+  })
+
+  describe('voiceUserTranscriptReceived action', () => {
+    it('should add a streaming user message for a non-final transcript', () => {
+      const action = ChatAssistantActions.voiceUserTranscriptReceived({
+        text: 'Hello',
+        isFinal: false
+      })
+      const result = chatAssistantReducer(initialState, action)
+      const last = result.currentMessages?.at(-1)
+      expect(last?.id).toBe('voice-user-streaming')
+      expect(last?.text).toBe('Hello')
+      expect(last?.type).toBe(MessageType.Human)
+    })
+
+    it('should not add a streaming message for an empty non-final transcript', () => {
+      const action = ChatAssistantActions.voiceUserTranscriptReceived({ text: '', isFinal: false })
+      const result = chatAssistantReducer(initialState, action)
+      expect(result.currentMessages).toEqual([])
+    })
+
+    it('should replace a streaming user message with a permanent one when final', () => {
+      const withStreaming: ChatAssistantState = {
+        ...initialState,
+        currentMessages: [
+          {
+            id: 'voice-user-streaming',
+            type: MessageType.Human,
+            text: 'Hello',
+            creationDate: '2023-01-01T10:00:00Z'
+          }
+        ]
+      }
+      const action = ChatAssistantActions.voiceUserTranscriptReceived({
+        text: 'Hello world',
+        isFinal: true
+      })
+      const result = chatAssistantReducer(withStreaming, action)
+      expect(result.currentMessages?.some((m) => m.id === 'voice-user-streaming')).toBe(false)
+      const last = result.currentMessages?.at(-1)
+      expect(last?.text).toBe('Hello world')
+      expect(last?.id?.startsWith('voice-user-')).toBe(true)
+    })
+  })
+
+  describe('voiceBotTranscriptReceived action', () => {
+    it('should start a new streaming bot message', () => {
+      const action = ChatAssistantActions.voiceBotTranscriptReceived({ text: 'Hi', spoken: false })
+      const result = chatAssistantReducer(initialState, action)
+      const last = result.currentMessages?.at(-1)
+      expect(last?.id).toBe('voice-bot-streaming')
+      expect(last?.text).toBe('Hi')
+      expect(last?.type).toBe(MessageType.Assistant)
+    })
+
+    it('should append to an existing streaming bot message', () => {
+      const withStreaming: ChatAssistantState = {
+        ...initialState,
+        currentMessages: [
+          {
+            id: 'voice-bot-streaming',
+            type: MessageType.Assistant,
+            text: 'Hi',
+            creationDate: '2023-01-01T10:00:00Z'
+          }
+        ]
+      }
+      const action = ChatAssistantActions.voiceBotTranscriptReceived({
+        text: 'there',
+        spoken: false
+      })
+      const result = chatAssistantReducer(withStreaming, action)
+      const last = result.currentMessages?.at(-1)
+      expect(last?.text).toBe('Hi there')
+    })
+
+    it('should ignore transcripts already marked as spoken', () => {
+      const state: ChatAssistantState = { ...initialState, currentMessages: [] }
+      const action = ChatAssistantActions.voiceBotTranscriptReceived({ text: 'Hi', spoken: true })
+      const result = chatAssistantReducer(state, action)
+      expect(result.currentMessages).toEqual([])
     })
   })
 

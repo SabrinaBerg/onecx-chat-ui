@@ -45,7 +45,8 @@ describe('ChatAssistant Selectors', () => {
     settingsOpen: false,
     loadedChatPages: 0,
     agents: CHAT_AGENTS,
-    selectedAgentId: DEFAULT_AGENT_ID
+    selectedAgentId: DEFAULT_AGENT_ID,
+    voiceChatEnabled: false
   }
 
   describe('chatAssistantSelectors', () => {
@@ -96,7 +97,8 @@ describe('ChatAssistant Selectors', () => {
         settingsOpen: false,
         agents: CHAT_AGENTS,
         selectedAgentId: DEFAULT_AGENT_ID,
-        showAgentSelector: true
+        showAgentSelector: true,
+        voiceChatEnabled: false
       }
 
       expect(result).toEqual(expected)

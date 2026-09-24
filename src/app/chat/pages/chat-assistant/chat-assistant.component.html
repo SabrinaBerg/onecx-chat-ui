@@ -43,9 +43,14 @@
               [agents]="vm.agents"
               [selectedAgentId]="vm.selectedAgentId"
               [showAgentSelector]="vm.showAgentSelector"
+              [voiceAiEnabled]="environment.voiceAiEnabled"
+              [voiceChatEnabled]="vm.voiceChatEnabled"
               (sendMessage)="sendMessage($event)"
               (retrySendMessage)="sendMessage($event)"
               (agentSelected)="agentSelected($event)"
+              (voiceChatToggled)="voiceChatToggled($event)"
+              (userTranscript)="voiceUserTranscriptReceived($event)"
+              (botTranscript)="voiceBotTranscriptReceived($event)"
             ></app-chat>
           }
         </div>

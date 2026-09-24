@@ -16,7 +16,8 @@ export const initialState: ChatAssistantState = {
   loadedChatPages: 0,
   settingsOpen: false,
   agents: CHAT_AGENTS,
-  selectedAgentId: DEFAULT_AGENT_ID
+  selectedAgentId: DEFAULT_AGENT_ID,
+  voiceChatEnabled: false
 }
 
 const cleanTemp = (m?: { id?: string }) => {
@@ -190,5 +191,76 @@ export const chatAssistantReducer = createReducer(
   on(ChatAssistantActions.agentSelected, (state, action) => ({
     ...state,
     selectedAgentId: action.agentId
-  }))
+  })),
+  on(ChatAssistantActions.voiceChatEnabled, (state) => ({
+    ...state,
+    voiceChatEnabled: true
+  })),
+  on(ChatAssistantActions.voiceChatDisabled, (state) => ({
+    ...state,
+    voiceChatEnabled: false
+  })),
+  on(ChatAssistantActions.voiceUserTranscriptReceived, (state, action) => {
+    const withoutStreamingUser = (state.currentMessages ?? []).filter((m) => m.id !== 'voice-user-streaming')
+    const withFinalizedBot = withoutStreamingUser.map((m) =>
+      m.id === 'voice-bot-streaming' ? { ...m, id: `voice-bot-${Date.now()}` } : m
+    )
+
+    if (action.isFinal) {
+      return {
+        ...state,
+        currentMessages: [
+          ...withFinalizedBot,
+          {
+            id: `voice-user-${Date.now()}`,
+            type: MessageType.Human,
+            text: action.text,
+            creationDate: new Date().toISOString()
+          }
+        ]
+      }
+    }
+
+    return {
+      ...state,
+      currentMessages: [
+        ...withFinalizedBot,
+        action.text
+          ? {
+              id: 'voice-user-streaming',
+              type: MessageType.Human,
+              text: action.text,
+              creationDate: new Date().toISOString()
+            }
+          : null
+      ].filter((m): m is NonNullable<typeof m> => m !== null)
+    }
+  }),
+  on(ChatAssistantActions.voiceBotTranscriptReceived, (state, action) => {
+    if (action.spoken) {
+      return state
+    }
+    const messages = state.currentMessages ?? []
+    const existing = messages.find((m) => m.id === 'voice-bot-streaming')
+    if (existing) {
+      return {
+        ...state,
+        currentMessages: messages.map((m) =>
+          m.id === 'voice-bot-streaming' ? { ...m, text: m.text + ' ' + action.text } : m
+        )
+      }
+    }
+    return {
+      ...state,
+      currentMessages: [
+        ...messages,
+        {
+          id: 'voice-bot-streaming',
+          type: MessageType.Assistant,
+          text: action.text,
+          creationDate: new Date().toISOString()
+        }
+      ]
+    }
+  })
 )

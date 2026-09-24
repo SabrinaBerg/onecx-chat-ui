@@ -1,0 +1,4 @@
+:host ::ng-deep .voice-record-button,
+:host ::ng-deep .voice-mute-button {
+  color: var(--primary-text-color, #ffffff) !important;
+}

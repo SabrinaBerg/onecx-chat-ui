@@ -1,0 +1,5 @@
+<div class="voice-waveform" aria-hidden="true">
+  @for (level of barLevels; track $index) {
+    <span class="voice-waveform__bar" [style.transform]="'scaleY(' + level + ')'"></span>
+  }
+</div>

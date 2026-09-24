@@ -59,6 +59,104 @@
   z-index: 1;
 }
 
+@property --shimmer-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --shimmer-angle-user {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+/* Shimmering border for the currently streaming bot message */
+.message-streaming {
+  position: relative;
+  border-radius: var(--border-radius-lg, 8px);
+}
+
+.message-streaming::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: calc(var(--border-radius-lg, 8px) + 2px);
+  background: conic-gradient(
+    from var(--shimmer-angle, 0deg),
+    transparent 0%,
+    rgba(237, 106, 84, 0.9) 15%,
+    rgba(255, 200, 100, 0.9) 30%,
+    rgba(237, 106, 84, 0.9) 45%,
+    transparent 60%
+  );
+  animation: shimmer-rotate 1.8s linear infinite;
+  z-index: 0;
+}
+
+.message-streaming::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: calc(var(--border-radius-lg, 8px) + 1px);
+  background: var(--surface-100, #f8f9fa);
+  z-index: 1;
+}
+
+.message-streaming > * {
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes shimmer-rotate {
+  to {
+    --shimmer-angle: 360deg;
+  }
+}
+
+@keyframes shimmer-rotate-user {
+  to {
+    --shimmer-angle-user: 360deg;
+  }
+}
+
+/* Shimmering border for the currently streaming user message */
+.message-streaming-user {
+  position: relative;
+  border-radius: var(--border-radius-lg, 8px);
+}
+
+.message-streaming-user::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: calc(var(--border-radius-lg, 8px) + 2px);
+  background: conic-gradient(
+    from var(--shimmer-angle-user, 0deg),
+    transparent 0%,
+    rgba(59, 130, 246, 0.9) 15%,
+    rgba(147, 197, 253, 0.9) 30%,
+    rgba(59, 130, 246, 0.9) 45%,
+    transparent 60%
+  );
+  animation: shimmer-rotate-user 1.8s linear infinite;
+  z-index: 0;
+}
+
+.message-streaming-user::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: calc(var(--border-radius-lg, 8px) + 1px);
+  background: var(--blue-100, #dbeafe);
+  z-index: 1;
+}
+
+.message-streaming-user > * {
+  position: relative;
+  z-index: 2;
+}
+
 .message-box {
   padding: 0.5rem;
   border: 1px solid var(--surface-300, #d1d5db);
