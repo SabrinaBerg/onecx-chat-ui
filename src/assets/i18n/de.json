@@ -126,6 +126,7 @@
       "SAVE": "Speichern",
       "RETRY": "Wiederholen",
       "SEND": "Nachricht senden",
+      "SEND_DISABLED": "Warte auf Antwort...",
       "SCROLL_TO_LATEST": "Zu den neuesten Nachrichten scrollen"
     },
     "ERROR_MESSAGES": {

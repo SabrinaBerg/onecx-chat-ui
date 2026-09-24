@@ -72,7 +72,8 @@ export const selectChatAssistantViewModel = createSelector(
       agents: state.agents,
       selectedAgentId: state.selectedAgentId,
       showAgentSelector: currentChat?.type === ChatType.AiChat,
-      voiceChatEnabled: state.voiceChatEnabled
+      voiceChatEnabled: state.voiceChatEnabled,
+      sendMessageDisabled: currentChat?.type === ChatType.AiChat && state.awaitingAssistantResponse
     }
   }
 )
