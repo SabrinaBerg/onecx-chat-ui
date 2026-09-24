@@ -150,7 +150,8 @@
         class="ml-auto"
         [chatId]="chatId ?? ''"
         [voiceChatEnabled]="voiceChatEnabled"
-        (toggleVoiceChat)="onVoiceChatToggled($event)"
+        (voiceChatStarted)="onVoiceChatStarted()"
+        (voiceChatStopped)="onVoiceChatStopped()"
         (userTranscript)="userTranscript.emit($event)"
         (botTranscript)="botTranscript.emit($event)"
       ></app-voice>

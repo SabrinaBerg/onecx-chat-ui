@@ -49,7 +49,8 @@
               (sendMessage)="sendMessage($event)"
               (retrySendMessage)="sendMessage($event)"
               (agentSelected)="agentSelected($event)"
-              (voiceChatToggled)="voiceChatToggled($event)"
+              (voiceChatStarted)="voiceChatStarted()"
+              (voiceChatStopped)="voiceChatStopped()"
               (userTranscript)="voiceUserTranscriptReceived($event)"
               (botTranscript)="voiceBotTranscriptReceived($event)"
             ></app-chat>

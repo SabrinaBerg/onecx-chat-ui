@@ -112,6 +112,25 @@ describe('ChatAssistant Reducer', () => {
       expect(last?.text).toBe('Hello world')
       expect(last?.id?.startsWith('voice-user-')).toBe(true)
     })
+
+    it('should finalize a streaming bot message when the user transcript arrives', () => {
+      const withBotStreaming: ChatAssistantState = {
+        ...initialState,
+        currentMessages: [
+          {
+            id: 'voice-bot-streaming',
+            type: MessageType.Assistant,
+            text: 'Hi there',
+            creationDate: '2023-01-01T10:00:00Z'
+          }
+        ]
+      }
+      const action = ChatAssistantActions.voiceUserTranscriptReceived({ text: 'next', isFinal: false })
+      const result = chatAssistantReducer(withBotStreaming, action)
+      // The bot message is finalized (renamed) while a new streaming user message begins.
+      expect(result.currentMessages?.some((m) => m.id === 'voice-bot-streaming')).toBe(false)
+      expect(result.currentMessages?.some((m) => m.id === 'voice-user-streaming')).toBe(true)
+    })
   })
 
   describe('voiceBotTranscriptReceived action', () => {

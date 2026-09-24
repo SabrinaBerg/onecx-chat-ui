@@ -95,7 +95,10 @@ export class ChatComponent implements AfterViewInit, AfterViewChecked, OnChanges
   agentSelected = new EventEmitter<string>()
 
   @Output()
-  voiceChatToggled = new EventEmitter<boolean>()
+  voiceChatStarted = new EventEmitter<void>()
+
+  @Output()
+  voiceChatStopped = new EventEmitter<void>()
 
   @Output()
   userTranscript = new EventEmitter<{ text: string; isFinal: boolean }>()
@@ -188,8 +191,12 @@ export class ChatComponent implements AfterViewInit, AfterViewChecked, OnChanges
     this.retrySendMessage.emit(msg.text)
   }
 
-  onVoiceChatToggled(enabled: boolean) {
-    this.voiceChatToggled.emit(enabled)
+  onVoiceChatStarted() {
+    this.voiceChatStarted.emit()
+  }
+
+  onVoiceChatStopped() {
+    this.voiceChatStopped.emit()
   }
 
   scrollToLatest(): void {

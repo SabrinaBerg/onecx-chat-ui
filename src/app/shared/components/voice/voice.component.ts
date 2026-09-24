@@ -20,7 +20,8 @@ export class VoiceComponent implements OnDestroy {
   @Input() chatId = ''
   @Input() voiceChatEnabled = false
 
-  @Output() toggleVoiceChat = new EventEmitter<boolean>()
+  @Output() voiceChatStarted = new EventEmitter<void>()
+  @Output() voiceChatStopped = new EventEmitter<void>()
   @Output() userTranscript = new EventEmitter<{ text: string; isFinal: boolean }>()
   @Output() botTranscript = new EventEmitter<{ text: string; spoken: boolean }>()
 
@@ -57,7 +58,7 @@ export class VoiceComponent implements OnDestroy {
   async onClick(): Promise<void> {
     if (this.voiceChatEnabled) {
       this.voiceService.cleanup()
-      this.toggleVoiceChat.emit(false)
+      this.voiceChatStopped.emit()
       return
     }
 
@@ -65,9 +66,9 @@ export class VoiceComponent implements OnDestroy {
 
     try {
       await this.voiceService.start(this.chatId)
-      this.toggleVoiceChat.emit(true)
+      this.voiceChatStarted.emit()
     } catch (error) {
-      this.toggleVoiceChat.emit(false)
+      this.voiceChatStopped.emit()
       throw error
     }
   }

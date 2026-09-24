@@ -248,8 +248,8 @@ export const chatAssistantReducer = createReducer(
       return state
     }
     const messages = state.currentMessages ?? []
-    const existing = messages.find((m) => m.id === 'voice-bot-streaming')
-    if (existing) {
+    const hasStreamingBot = messages.some((m) => m.id === 'voice-bot-streaming')
+    if (hasStreamingBot) {
       return {
         ...state,
         currentMessages: messages.map((m) =>

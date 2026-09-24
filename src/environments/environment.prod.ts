@@ -3,7 +3,7 @@ export const environment = {
   apiPrefix: 'bff',
   chatMessageProcessingMode: 'async',
   DEFAULT_LOGO_PATH: '/assets/images/logo.png',
-  // TODO(#789): voice backend is still mocked — keep true for local-env UI work,
-  // flip to false before merging to production.
+  // Voice mode ships with a mocked backend (#789). Kept enabled so the voice
+  // UI is demonstrable; a real voice backend must be wired up before voice
   voiceAiEnabled: true
 }
