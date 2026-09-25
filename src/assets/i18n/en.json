@@ -155,7 +155,8 @@
       "NO_CHATS": "You don't have existing chats.",
       "CREATE_NEW": "Create a new one?",
       "CREATE_CHAT_BUTTON": "Create New Chat",
-      "CHAT_TYPE_BUTTON": "Select chat type"
+      "CHAT_TYPE_BUTTON": "Select chat type",
+      "LOADING_MORE": "Loading more chats"
     },
     "OPTION": {
       "AI_SUBTITLE": "smart answers",

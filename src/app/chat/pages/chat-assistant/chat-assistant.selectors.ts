@@ -25,6 +25,13 @@ export const mapChatTypeToTitleKey = (t?: ChatType | string | null) => {
   }
 }
 
+export const selectHasMore = createSelector(
+  chatAssistantSelectors.selectChats,
+  chatAssistantSelectors.selectTotalAvailableChats,
+  (chats: Chat[], totalAvailableChats: number | undefined) =>
+    totalAvailableChats != undefined && chats.length < totalAvailableChats
+)
+
 export const selectChatTopic = createSelector(
   chatAssistantSelectors.selectCurrentChat,
   chatFeature.selectAssistant,

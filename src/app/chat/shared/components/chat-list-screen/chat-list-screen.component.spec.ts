@@ -1,21 +1,21 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { By } from '@angular/platform-browser'
 import { DatePipe } from '@angular/common'
-import { Store } from '@ngrx/store'
-import { provideMockStore } from '@ngrx/store/testing'
+import { MockStore, provideMockStore } from '@ngrx/store/testing'
 import { TranslateService } from '@ngx-translate/core'
 import { TranslateTestingModule } from 'ngx-translate-testing'
 import { of, firstValueFrom, Observable } from 'rxjs'
 
 import { MenuItem } from 'primeng/api'
 import { ButtonModule } from 'primeng/button'
-import { ScrollerLazyLoadEvent } from 'primeng/scroller'
+import { Scroller, ScrollerLazyLoadEvent } from 'primeng/scroller'
 import { Tooltip } from 'primeng/tooltip'
 
 import { AppStateService } from '@onecx/angular-integration-interface'
 
 import { ChatAssistantActions } from 'src/app/chat/pages/chat-assistant/chat-assistant.actions'
-import { chatAssistantSelectors } from 'src/app/chat/pages/chat-assistant/chat-assistant.selectors'
+import { chatAssistantSelectors, selectHasMore } from 'src/app/chat/pages/chat-assistant/chat-assistant.selectors'
+import { initialState } from 'src/app/chat/pages/chat-assistant/chat-assistant.reducers'
 import { ChatType } from 'src/app/shared/generated'
 import { ChatListScreenComponent } from './chat-list-screen.component'
 import { ChatHeaderComponent } from '../chat-header/chat-header.component'
@@ -243,7 +243,7 @@ describe('ChatListScreenComponent', () => {
   describe('onSearchQueryChange', () => {
     it('should dispatch ChatAssistantActions.searchQueryChanged with the query', () => {
       const testQuery = 'test search'
-      const store = TestBed.inject(Store)
+      const store = TestBed.inject(MockStore)
       jest.spyOn(store, 'dispatch')
 
       component.onSearchQueryChange(testQuery)
@@ -252,7 +252,7 @@ describe('ChatListScreenComponent', () => {
     })
 
     it('should handle empty query string', () => {
-      const store = TestBed.inject(Store)
+      const store = TestBed.inject(MockStore)
       jest.spyOn(store, 'dispatch')
 
       component.onSearchQueryChange('')
@@ -315,16 +315,109 @@ describe('ChatListScreenComponent', () => {
     })
   })
 
+  const twoChats = [{ id: 'c1', topic: 'One' } as any, { id: 'c2', topic: 'Two' } as any]
+
   describe('onLazyLoad', () => {
-    it('dispatches fetchNextChatsPage when lazy load event occurs', () => {
-      const store = TestBed.inject(Store)
-      jest.spyOn(store, 'dispatch')
+    it('dispatches fetchNextChatsPage when lazy load event occurs and more chats remain', () => {
+      const store = TestBed.inject(MockStore)
+      store.overrideSelector(selectHasMore, true)
+      const dispatchSpy = jest.spyOn(store, 'dispatch')
 
       const component = TestBed.createComponent(ChatListScreenComponent).componentInstance
 
       component.onLazyLoad({ first: 10, last: 30 } as ScrollerLazyLoadEvent)
 
-      expect(store.dispatch).toHaveBeenCalledWith(ChatAssistantActions.fetchNextChatsPage())
+      expect(dispatchSpy).toHaveBeenCalledWith(ChatAssistantActions.fetchNextChatsPage())
+    })
+
+    it('does not dispatch fetchNextChatsPage when all chats are already loaded', () => {
+      const store = TestBed.inject(MockStore)
+      store.overrideSelector(selectHasMore, false)
+      const dispatchSpy = jest.spyOn(store, 'dispatch')
+
+      const component = TestBed.createComponent(ChatListScreenComponent).componentInstance
+
+      component.onLazyLoad({ first: 10, last: 30 } as ScrollerLazyLoadEvent)
+
+      expect(dispatchSpy).not.toHaveBeenCalledWith(ChatAssistantActions.fetchNextChatsPage())
+    })
+  })
+
+  const setAssistantState = (overrides: Partial<Record<keyof typeof initialState, any>>) => {
+    TestBed.inject(MockStore).setState({
+      chat: {
+        assistant: {
+          ...initialState,
+          chats: twoChats,
+          totalAvailableChats: 10,
+          ...overrides
+        }
+      }
+    })
+  }
+
+  describe('p-scroller during loading', () => {
+    it('keeps the loaded items bound while isLoading is true', () => {
+      setAssistantState({ isLoading: true })
+      fixture.detectChanges()
+
+      const scrollers = fixture.debugElement.queryAll(By.directive(Scroller))
+      expect(scrollers.length).toBeGreaterThan(0)
+      for (const scroller of scrollers) {
+        expect(scroller.componentInstance.items).toEqual(twoChats)
+      }
+    })
+
+    it('does not show the full-cover loader mask while isLoading is true (no blanking of the list)', () => {
+      setAssistantState({ isLoading: true })
+      fixture.detectChanges()
+
+      for (const scroller of fixture.debugElement.queryAll(By.directive(Scroller))) {
+        expect(scroller.query(By.css('[data-pc-section="loader"]'))).toBeNull()
+      }
+    })
+  })
+
+  describe('visible bottom-of-list loading indicator', () => {
+    it('shows a spinner below the scroller while isLoading is true', () => {
+      setAssistantState({ isLoading: true })
+      fixture.detectChanges()
+
+      const loader = fixture.debugElement.query(By.css('#chat_list_bottom_loader'))
+      expect(loader).toBeTruthy()
+      for (const scroller of fixture.debugElement.queryAll(By.directive(Scroller))) {
+        expect(scroller.query(By.css('#chat_list_bottom_loader'))).toBeNull()
+      }
+    })
+
+    it('removes the spinner once isLoading becomes false', () => {
+      setAssistantState({ isLoading: false })
+      fixture.detectChanges()
+
+      const loader = fixture.debugElement.query(By.css('#chat_list_bottom_loader'))
+      expect(loader).toBeNull()
+    })
+  })
+
+  describe('loading announcement (a11y)', () => {
+    it('announces loading via a polite live region while isLoading is true', () => {
+      setAssistantState({ isLoading: true })
+      fixture.detectChanges()
+
+      // <output> has an implicit aria-live="polite" (preferred over role="status" per Sonar a11y).
+      const liveRegion = fixture.debugElement.query(By.css('output'))
+
+      expect(liveRegion).toBeTruthy()
+      expect(liveRegion.nativeElement.textContent).toContain('Loading more chats')
+    })
+
+    it('removes the announcement once isLoading becomes false', () => {
+      setAssistantState({ isLoading: false })
+      fixture.detectChanges()
+
+      const liveRegion = fixture.debugElement.query(By.css('output'))
+
+      expect(liveRegion).toBeNull()
     })
   })
 
