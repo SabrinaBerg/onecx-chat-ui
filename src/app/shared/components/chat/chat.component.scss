@@ -71,7 +71,6 @@
   initial-value: 0deg;
 }
 
-/* Shimmering border for the currently streaming bot message */
 .message-streaming {
   position: relative;
   border-radius: var(--border-radius-lg, 8px);
@@ -120,7 +119,6 @@
   }
 }
 
-/* Shimmering border for the currently streaming user message */
 .message-streaming-user {
   position: relative;
   border-radius: var(--border-radius-lg, 8px);

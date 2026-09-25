@@ -127,7 +127,6 @@ describe('ChatAssistant Reducer', () => {
       }
       const action = ChatAssistantActions.voiceUserTranscriptReceived({ text: 'next', isFinal: false })
       const result = chatAssistantReducer(withBotStreaming, action)
-      // The bot message is finalized (renamed) while a new streaming user message begins.
       expect(result.currentMessages?.some((m) => m.id === 'voice-bot-streaming')).toBe(false)
       expect(result.currentMessages?.some((m) => m.id === 'voice-user-streaming')).toBe(true)
     })
@@ -152,7 +151,6 @@ describe('ChatAssistant Reducer', () => {
       }
       const action = ChatAssistantActions.voiceUserTranscriptReceived({ text: 'next', isFinal: false })
       const result = chatAssistantReducer(withMessages, action)
-      // Only the streaming bot message is finalized; the other user message is preserved as-is.
       expect(result.currentMessages?.some((m) => m.id === 'voice-user-1')).toBe(true)
       expect(result.currentMessages?.some((m) => m.id === 'voice-bot-streaming')).toBe(false)
       expect(result.currentMessages?.some((m) => m.id === 'voice-user-streaming')).toBe(true)
@@ -217,7 +215,6 @@ describe('ChatAssistant Reducer', () => {
       }
       const action = ChatAssistantActions.voiceBotTranscriptReceived({ text: 'there', spoken: false })
       const result = chatAssistantReducer(withMessages, action)
-      // Appends to the streaming bot message and leaves the user message untouched.
       expect(result.currentMessages?.find((m) => m.id === 'voice-user-1')?.text).toBe('earlier')
       expect(result.currentMessages?.find((m) => m.id === 'voice-bot-streaming')?.text).toBe('Hi there')
     })

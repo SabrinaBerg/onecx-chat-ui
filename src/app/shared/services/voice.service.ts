@@ -53,9 +53,6 @@ export class VoiceService implements OnDestroy {
     this.isMuted.update((v) => !v)
   }
 
-  /**
-   * Stops any connection and resets all state.
-   */
   cleanup(): void {
     for (const timer of this.timers) {
       clearTimeout(timer)
@@ -68,9 +65,6 @@ export class VoiceService implements OnDestroy {
     this.isConnecting.set(false)
     this.isConnected.set(false)
     this.isMuted.set(false)
-
-    // Mirrors the old client behaviour of flushing an empty user transcript on
-    // disconnect so the UI can finalize any in-flight streaming message.
     this.userTranscript$.next({ text: '', isFinal: false })
   }
 
@@ -104,7 +98,6 @@ export class VoiceService implements OnDestroy {
     const userText = 'This is a mock message to show the voice chat UI.'
     const botText = 'Once the voice backend is implemented, this mock conversation will be replaced. Stay tuned.'
 
-    // Stream the user's words in chunks, then finalize them.
     const userChunks = splitIntoChunks(userText)
     userChunks.forEach((chunk, i) => {
       this.schedule(
@@ -157,7 +150,6 @@ export class VoiceService implements OnDestroy {
   }
 }
 
-/** Splits text into word groups of up to `size` words, keeping readability. */
 function splitIntoChunks(text: string, size = 4): string[] {
   const words = text.split(/\s+/).filter(Boolean)
   const chunks: string[] = []

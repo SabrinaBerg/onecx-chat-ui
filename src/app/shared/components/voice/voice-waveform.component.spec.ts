@@ -11,13 +11,11 @@ import { VoiceWaveformComponent } from './voice-waveform.component'
 class FakeAnalyser {
   fftSize = 1024
   getByteTimeDomainData(data: Uint8Array): void {
-    // Leave the buffer as-is (all zeros) so the component computes a stable level.
     data.fill(0)
   }
 }
 
 class FakeSource {
-  // No-op source: the component only needs to be able to call connect().
   connect = jest.fn()
 }
 
