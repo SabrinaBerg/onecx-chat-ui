@@ -1,0 +1,32 @@
+<div class="flex align-items-center gap-2">
+  <p-button
+    [icon]="voiceChatEnabled ? '' : 'pi pi-wave-pulse'"
+    [rounded]="!voiceChatEnabled"
+    [pTooltip]="
+      voiceChatEnabled ? ('VOICE.STOP_RECORDING_TOOLTIP' | translate) : ('VOICE.START_RECORDING_TOOLTIP' | translate)
+    "
+    [loading]="isConnecting()"
+    (click)="onClick()"
+    styleClass="voice-record-button"
+  >
+    @if (voiceChatEnabled) {
+      <span class="mr-2">
+        {{ 'VOICE.STOP_RECORDING' | translate }}
+      </span>
+      <app-voice-waveform [stream]="micStream()" [active]="voiceChatEnabled && !isMuted()"></app-voice-waveform>
+    }
+  </p-button>
+
+  @if (voiceChatEnabled) {
+    <p-button
+      icon="pi pi-microphone"
+      [rounded]="true"
+      [severity]="isMuted() ? 'danger' : 'success'"
+      [pTooltip]="isMuted() ? ('VOICE.UNMUTE_TOOLTIP' | translate) : ('VOICE.MUTE_TOOLTIP' | translate)"
+      (click)="toggleMute()"
+      styleClass="voice-mute-button"
+    ></p-button>
+  }
+</div>
+
+<audio #botAudio autoplay></audio>

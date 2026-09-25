@@ -195,5 +195,13 @@
       "SATURDAY": "Samstag",
       "SUNDAY": "Sonntag"
     }
+  },
+  "VOICE": {
+    "START_RECORDING": "Sprache starten",
+    "START_RECORDING_TOOLTIP": "Sprachchat starten",
+    "STOP_RECORDING": "Sprache stoppen",
+    "STOP_RECORDING_TOOLTIP": "Sprachchat stoppen",
+    "MUTE_TOOLTIP": "Mikrofon stummschalten",
+    "UNMUTE_TOOLTIP": "Mikrofon aufschalten"
   }
 }

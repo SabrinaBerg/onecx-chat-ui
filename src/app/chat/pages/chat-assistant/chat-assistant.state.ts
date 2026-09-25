@@ -13,6 +13,7 @@ export interface ChatAssistantState {
   settingsOpen: boolean
   agents: ChatAgent[]
   selectedAgentId: string
+  voiceChatEnabled: boolean
   awaitingAssistantResponse: boolean
 }
 

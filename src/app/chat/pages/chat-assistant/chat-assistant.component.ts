@@ -163,4 +163,20 @@ export class ChatAssistantComponent implements OnChanges {
       })
     )
   }
+
+  voiceChatStarted() {
+    this.store.dispatch(ChatAssistantActions.voiceChatEnabled())
+  }
+
+  voiceChatStopped() {
+    this.store.dispatch(ChatAssistantActions.voiceChatDisabled())
+  }
+
+  voiceUserTranscriptReceived(event: { text: string; isFinal: boolean }) {
+    this.store.dispatch(ChatAssistantActions.voiceUserTranscriptReceived(event))
+  }
+
+  voiceBotTranscriptReceived(event: { text: string; spoken: boolean }) {
+    this.store.dispatch(ChatAssistantActions.voiceBotTranscriptReceived(event))
+  }
 }

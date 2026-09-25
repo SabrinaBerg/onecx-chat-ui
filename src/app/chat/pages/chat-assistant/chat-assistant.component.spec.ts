@@ -101,6 +101,42 @@ describe('ChatAssistantComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(ChatAssistantActions.chatPanelClosed())
   })
 
+  describe('voice chat methods', () => {
+    it('should dispatch voiceChatEnabled when voice chat starts', () => {
+      jest.spyOn(store, 'dispatch')
+
+      component.voiceChatStarted()
+
+      expect(store.dispatch).toHaveBeenCalledWith(ChatAssistantActions.voiceChatEnabled())
+    })
+
+    it('should dispatch voiceChatDisabled when voice chat stops', () => {
+      jest.spyOn(store, 'dispatch')
+
+      component.voiceChatStopped()
+
+      expect(store.dispatch).toHaveBeenCalledWith(ChatAssistantActions.voiceChatDisabled())
+    })
+
+    it('should dispatch the user transcript event', () => {
+      jest.spyOn(store, 'dispatch')
+      const event = { text: 'Hello', isFinal: false }
+
+      component.voiceUserTranscriptReceived(event)
+
+      expect(store.dispatch).toHaveBeenCalledWith(ChatAssistantActions.voiceUserTranscriptReceived(event))
+    })
+
+    it('should dispatch the bot transcript event', () => {
+      jest.spyOn(store, 'dispatch')
+      const event = { text: 'Hi there', spoken: false }
+
+      component.voiceBotTranscriptReceived(event)
+
+      expect(store.dispatch).toHaveBeenCalledWith(ChatAssistantActions.voiceBotTranscriptReceived(event))
+    })
+  })
+
   it('should set selectedChatMode to ai mode and dispatch newChatClicked with ai', () => {
     jest.spyOn(store, 'dispatch')
 

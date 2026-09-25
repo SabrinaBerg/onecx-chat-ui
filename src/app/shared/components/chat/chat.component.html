@@ -7,6 +7,8 @@
             style="width: 98%"
             [class.align-self-start]="message.type === 'SYSTEM' || message.type === 'ASSISTANT'"
             [class.align-self-end]="message.type === 'HUMAN'"
+            [class.message-streaming]="message.id === 'voice-bot-streaming' && voiceChatEnabled"
+            [class.message-streaming-user]="message.id === 'voice-user-streaming' && voiceChatEnabled"
           >
             <div
               class="p-2 border-round-lg border-1"
@@ -86,60 +88,73 @@
     }
   </ng-template>
 
-  <div class="p-2">
-    <form [formGroup]="formGroup" class="w-full">
-      <div
-        class="relative message-box flex flex-column w-full"
-        [ariaLabel]="'CHAT.HEADER.MESSAGE_PLACEHOLDER' | translate"
-        [pTooltip]="'CHAT.HEADER.MESSAGE_PLACEHOLDER' | translate"
-        tooltipPosition="top"
-      >
-        <span id="chat_message_input_label" class="absolute message-label text-sm">
-          {{ 'CHAT.MESSAGE_PLACEHOLDER' | translate }}
-        </span>
-        <textarea
-          pTextarea
-          aria-labelledby="chat_message_input_label"
-          formControlName="message"
-          class="message-input w-full"
-          rows="4"
-          [attr.disabled]="sendMessageDisabled ? 'disabled' : null"
-          (keydown.enter)="$event.preventDefault(); sendButtonClicked()"
-        ></textarea>
-        <div class="message-box-footer flex align-items-center justify-content-between">
-          @if (showAgentSelector) {
-            <p-select
-              [options]="agentsForDropdown"
-              [ngModel]="selectedAgentId"
-              [ngModelOptions]="{ standalone: true }"
-              optionValue="id"
-              optionLabel="labelKey"
-              (ngModelChange)="agentSelected.emit($event)"
-              [placeholder]="'CHAT.AGENTS.PLACEHOLDER' | translate"
-              styleClass="agent-select"
-            >
-              <ng-template pTemplate="selectedItem" let-option>
-                <span>{{ option?.labelKey | translate }}</span>
-              </ng-template>
-              <ng-template pTemplate="item" let-agent>
-                <span>{{ agent.labelKey | translate }}</span>
-              </ng-template>
-            </p-select>
-          } @else {
-            <span></span>
-          }
-          <p-button
-            icon="pi pi-send"
-            [text]="true"
-            severity="contrast"
-            (onClick)="sendButtonClicked()"
-            [disabled]="formGroup.invalid || sendMessageDisabled"
-            [ariaLabel]="(sendMessageDisabled ? 'CHAT.ACTIONS.SEND_DISABLED' : 'CHAT.ACTIONS.SEND') | translate"
-            [pTooltip]="(sendMessageDisabled ? 'CHAT.ACTIONS.SEND_DISABLED' : 'CHAT.ACTIONS.SEND') | translate"
-            tooltipPosition="top"
-          />
+  <div class="p-2 flex align-items-center gap-2">
+    @if (!voiceChatEnabled) {
+      <form [formGroup]="formGroup" class="w-full">
+        <div
+          class="relative message-box flex flex-column w-full"
+          [ariaLabel]="'CHAT.HEADER.MESSAGE_PLACEHOLDER' | translate"
+          [pTooltip]="'CHAT.HEADER.MESSAGE_PLACEHOLDER' | translate"
+          tooltipPosition="top"
+        >
+          <span id="chat_message_input_label" class="absolute message-label text-sm">
+            {{ 'CHAT.MESSAGE_PLACEHOLDER' | translate }}
+          </span>
+          <textarea
+            pTextarea
+            aria-labelledby="chat_message_input_label"
+            formControlName="message"
+            class="message-input w-full"
+            rows="4"
+            [attr.disabled]="sendMessageDisabled ? 'disabled' : null"
+            (keydown.enter)="$event.preventDefault(); sendButtonClicked()"
+          ></textarea>
+          <div class="message-box-footer flex align-items-center justify-content-between">
+            @if (showAgentSelector) {
+              <p-select
+                [options]="agentsForDropdown"
+                [ngModel]="selectedAgentId"
+                [ngModelOptions]="{ standalone: true }"
+                optionValue="id"
+                optionLabel="labelKey"
+                (ngModelChange)="agentSelected.emit($event)"
+                [placeholder]="'CHAT.AGENTS.PLACEHOLDER' | translate"
+                styleClass="agent-select"
+              >
+                <ng-template pTemplate="selectedItem" let-option>
+                  <span>{{ option?.labelKey | translate }}</span>
+                </ng-template>
+                <ng-template pTemplate="item" let-agent>
+                  <span>{{ agent.labelKey | translate }}</span>
+                </ng-template>
+              </p-select>
+            } @else {
+              <span></span>
+            }
+            <p-button
+              icon="pi pi-send"
+              [text]="true"
+              severity="contrast"
+              (onClick)="sendButtonClicked()"
+              [disabled]="formGroup.invalid || sendMessageDisabled"
+              [ariaLabel]="(sendMessageDisabled ? 'CHAT.ACTIONS.SEND_DISABLED' : 'CHAT.ACTIONS.SEND') | translate"
+              [pTooltip]="(sendMessageDisabled ? 'CHAT.ACTIONS.SEND_DISABLED' : 'CHAT.ACTIONS.SEND') | translate"
+              tooltipPosition="top"
+            />
+          </div>
         </div>
-      </div>
-    </form>
+      </form>
+    }
+    @if (voiceAiEnabled) {
+      <app-voice
+        class="ml-auto"
+        [chatId]="chatId ?? ''"
+        [voiceChatEnabled]="voiceChatEnabled"
+        (voiceChatStarted)="onVoiceChatStarted()"
+        (voiceChatStopped)="onVoiceChatStopped()"
+        (userTranscript)="userTranscript.emit($event)"
+        (botTranscript)="botTranscript.emit($event)"
+      ></app-voice>
+    }
   </div>
 </div>

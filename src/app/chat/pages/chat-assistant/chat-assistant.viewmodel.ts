@@ -12,5 +12,6 @@ export interface ChatAssistantViewModel {
   agents: ChatAgent[]
   selectedAgentId: string
   showAgentSelector: boolean
+  voiceChatEnabled: boolean
   sendMessageDisabled: boolean
 }

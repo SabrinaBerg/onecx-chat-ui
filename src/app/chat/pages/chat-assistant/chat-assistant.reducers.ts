@@ -17,6 +17,7 @@ export const initialState: ChatAssistantState = {
   settingsOpen: false,
   agents: CHAT_AGENTS,
   selectedAgentId: DEFAULT_AGENT_ID,
+  voiceChatEnabled: false,
   awaitingAssistantResponse: false
 }
 
@@ -198,6 +199,77 @@ export const chatAssistantReducer = createReducer(
     ...state,
     selectedAgentId: action.agentId
   })),
+  on(ChatAssistantActions.voiceChatEnabled, (state) => ({
+    ...state,
+    voiceChatEnabled: true
+  })),
+  on(ChatAssistantActions.voiceChatDisabled, (state) => ({
+    ...state,
+    voiceChatEnabled: false
+  })),
+  on(ChatAssistantActions.voiceUserTranscriptReceived, (state, action) => {
+    const withoutStreamingUser = (state.currentMessages ?? []).filter((m) => m.id !== 'voice-user-streaming')
+    const withFinalizedBot = withoutStreamingUser.map((m) =>
+      m.id === 'voice-bot-streaming' ? { ...m, id: `voice-bot-${Date.now()}` } : m
+    )
+
+    if (action.isFinal) {
+      return {
+        ...state,
+        currentMessages: [
+          ...withFinalizedBot,
+          {
+            id: `voice-user-${Date.now()}`,
+            type: MessageType.Human,
+            text: action.text,
+            creationDate: new Date().toISOString()
+          }
+        ]
+      }
+    }
+
+    return {
+      ...state,
+      currentMessages: [
+        ...withFinalizedBot,
+        action.text
+          ? {
+              id: 'voice-user-streaming',
+              type: MessageType.Human,
+              text: action.text,
+              creationDate: new Date().toISOString()
+            }
+          : null
+      ].filter((m): m is NonNullable<typeof m> => m !== null)
+    }
+  }),
+  on(ChatAssistantActions.voiceBotTranscriptReceived, (state, action) => {
+    if (action.spoken) {
+      return state
+    }
+    const messages = state.currentMessages ?? []
+    const hasStreamingBot = messages.some((m) => m.id === 'voice-bot-streaming')
+    if (hasStreamingBot) {
+      return {
+        ...state,
+        currentMessages: messages.map((m) =>
+          m.id === 'voice-bot-streaming' ? { ...m, text: m.text + ' ' + action.text } : m
+        )
+      }
+    }
+    return {
+      ...state,
+      currentMessages: [
+        ...messages,
+        {
+          id: 'voice-bot-streaming',
+          type: MessageType.Assistant,
+          text: action.text,
+          creationDate: new Date().toISOString()
+        }
+      ]
+    }
+  }),
   on(ChatAssistantActions.awaitAssistantResponseTimedOut, (state) => ({
     ...state,
     awaitingAssistantResponse: false

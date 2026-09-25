@@ -31,6 +31,7 @@ import { TooltipModule } from 'primeng/tooltip'
 import { MarkdownPipe } from '../../pipes/markdown.pipe'
 import { FloatLabelModule } from 'primeng/floatlabel'
 import { NewMessageIndicatorComponent } from '../new-message-indicator/new-message-indicator.component'
+import { VoiceComponent } from '../voice/voice.component'
 import { ChatScrollService } from '../../services/chat-scroll.service'
 
 @Component({
@@ -51,7 +52,8 @@ import { ChatScrollService } from '../../services/chat-scroll.service'
     TooltipModule,
     MarkdownPipe,
     NgTemplateOutlet,
-    NewMessageIndicatorComponent
+    NewMessageIndicatorComponent,
+    VoiceComponent
   ],
   providers: [ChatScrollService],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -77,6 +79,12 @@ export class ChatComponent implements AfterViewInit, AfterViewChecked, OnChanges
   @Input()
   showAgentSelector = false
 
+  @Input()
+  voiceChatEnabled = false
+
+  @Input()
+  voiceAiEnabled = false
+
   @Output()
   sendMessage = new EventEmitter<string>()
 
@@ -85,6 +93,18 @@ export class ChatComponent implements AfterViewInit, AfterViewChecked, OnChanges
 
   @Output()
   agentSelected = new EventEmitter<string>()
+
+  @Output()
+  voiceChatStarted = new EventEmitter<void>()
+
+  @Output()
+  voiceChatStopped = new EventEmitter<void>()
+
+  @Output()
+  userTranscript = new EventEmitter<{ text: string; isFinal: boolean }>()
+
+  @Output()
+  botTranscript = new EventEmitter<{ text: string; spoken: boolean }>()
 
   @ViewChild('scrollContainer') private readonly scrollContainer: ElementRef | undefined
 
@@ -169,6 +189,14 @@ export class ChatComponent implements AfterViewInit, AfterViewChecked, OnChanges
 
   retrySending(msg: ChatMessage) {
     this.retrySendMessage.emit(msg.text)
+  }
+
+  onVoiceChatStarted() {
+    this.voiceChatStarted.emit()
+  }
+
+  onVoiceChatStopped() {
+    this.voiceChatStopped.emit()
   }
 
   scrollToLatest(): void {

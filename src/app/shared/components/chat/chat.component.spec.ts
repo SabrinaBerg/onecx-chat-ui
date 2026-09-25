@@ -196,6 +196,24 @@ describe('ChatComponent', () => {
     })
   })
 
+  describe('voice chat events', () => {
+    it('should emit voiceChatStarted when the voice component reports a start', () => {
+      jest.spyOn(component.voiceChatStarted, 'emit')
+
+      component.onVoiceChatStarted()
+
+      expect(component.voiceChatStarted.emit).toHaveBeenCalled()
+    })
+
+    it('should emit voiceChatStopped when the voice component reports a stop', () => {
+      jest.spyOn(component.voiceChatStopped, 'emit')
+
+      component.onVoiceChatStopped()
+
+      expect(component.voiceChatStopped.emit).toHaveBeenCalled()
+    })
+  })
+
   describe('auto-scroll', () => {
     let scrollContainer: HTMLElement
     let scrollService: ChatScrollService

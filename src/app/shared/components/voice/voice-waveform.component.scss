@@ -1,0 +1,17 @@
+.voice-waveform {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 16px;
+  margin-left: 6px;
+}
+
+.voice-waveform__bar {
+  width: 3px;
+  height: 16px;
+  background: var(--primary-text-color, #ffffff);
+  border-radius: 2px;
+  transform-origin: center bottom;
+  transition: transform 60ms linear;
+  opacity: 0.9;
+}
