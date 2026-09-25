@@ -102,7 +102,7 @@ export class VoiceService implements OnDestroy {
    */
   private runScriptedExchange(): void {
     const userText = 'This is a mock message to show the voice chat UI.'
-    const botText = 'Once the voice backend is implemented, this mock conversation will be replaced.'
+    const botText = 'Once the voice backend is implemented, this mock conversation will be replaced. Stay tuned.'
 
     // Stream the user's words in chunks, then finalize them.
     const userChunks = splitIntoChunks(userText)
@@ -146,8 +146,9 @@ export class VoiceService implements OnDestroy {
   }
 
   private stopMicStream(): void {
-    if (this.micStream() && this.micStreamIsOwned) {
-      for (const track of this.micStream()?.getTracks() ?? []) {
+    const micStream = this.micStream()
+    if (micStream && this.micStreamIsOwned) {
+      for (const track of micStream.getTracks()) {
         track.stop()
       }
     }

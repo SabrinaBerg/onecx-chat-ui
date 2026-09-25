@@ -131,6 +131,32 @@ describe('ChatAssistant Reducer', () => {
       expect(result.currentMessages?.some((m) => m.id === 'voice-bot-streaming')).toBe(false)
       expect(result.currentMessages?.some((m) => m.id === 'voice-user-streaming')).toBe(true)
     })
+
+    it('should leave other messages untouched when finalizing the bot message', () => {
+      const withMessages: ChatAssistantState = {
+        ...initialState,
+        currentMessages: [
+          {
+            id: 'voice-bot-streaming',
+            type: MessageType.Assistant,
+            text: 'Hi there',
+            creationDate: '2023-01-01T10:00:00Z'
+          },
+          {
+            id: 'voice-user-1',
+            type: MessageType.Human,
+            text: 'earlier',
+            creationDate: '2023-01-01T09:00:00Z'
+          }
+        ]
+      }
+      const action = ChatAssistantActions.voiceUserTranscriptReceived({ text: 'next', isFinal: false })
+      const result = chatAssistantReducer(withMessages, action)
+      // Only the streaming bot message is finalized; the other user message is preserved as-is.
+      expect(result.currentMessages?.some((m) => m.id === 'voice-user-1')).toBe(true)
+      expect(result.currentMessages?.some((m) => m.id === 'voice-bot-streaming')).toBe(false)
+      expect(result.currentMessages?.some((m) => m.id === 'voice-user-streaming')).toBe(true)
+    })
   })
 
   describe('voiceBotTranscriptReceived action', () => {
@@ -169,6 +195,31 @@ describe('ChatAssistant Reducer', () => {
       const action = ChatAssistantActions.voiceBotTranscriptReceived({ text: 'Hi', spoken: true })
       const result = chatAssistantReducer(state, action)
       expect(result.currentMessages).toEqual([])
+    })
+
+    it('should preserve other messages while appending to the streaming bot message', () => {
+      const withMessages: ChatAssistantState = {
+        ...initialState,
+        currentMessages: [
+          {
+            id: 'voice-user-1',
+            type: MessageType.Human,
+            text: 'earlier',
+            creationDate: '2023-01-01T09:00:00Z'
+          },
+          {
+            id: 'voice-bot-streaming',
+            type: MessageType.Assistant,
+            text: 'Hi',
+            creationDate: '2023-01-01T10:00:00Z'
+          }
+        ]
+      }
+      const action = ChatAssistantActions.voiceBotTranscriptReceived({ text: 'there', spoken: false })
+      const result = chatAssistantReducer(withMessages, action)
+      // Appends to the streaming bot message and leaves the user message untouched.
+      expect(result.currentMessages?.find((m) => m.id === 'voice-user-1')?.text).toBe('earlier')
+      expect(result.currentMessages?.find((m) => m.id === 'voice-bot-streaming')?.text).toBe('Hi there')
     })
   })
 
