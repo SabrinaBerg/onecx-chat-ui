@@ -399,6 +399,47 @@ describe('ChatListScreenComponent', () => {
     })
   })
 
+  describe('tooltip accessibility handlers', () => {
+    it('shows the tooltip on mouse-over when a tooltip element exists', () => {
+      const host = document.createElement('div')
+      const tooltip = document.createElement('span')
+      tooltip.className = 'p-tooltip'
+      host.appendChild(tooltip)
+      const event = new MouseEvent('mouseover')
+      host.dispatchEvent(event)
+
+      component.onMouseOver(event)
+
+      expect(tooltip.style.display).toBe('block')
+    })
+
+    it('shows the tooltip on focus when a tooltip element exists', () => {
+      const host = document.createElement('div')
+      const tooltip = document.createElement('span')
+      tooltip.className = 'p-tooltip'
+      host.appendChild(tooltip)
+      const event = new FocusEvent('focus')
+      host.dispatchEvent(event)
+
+      component.onFocus(event)
+
+      expect(tooltip.style.display).toBe('block')
+    })
+
+    it('does nothing when the target has no tooltip element', () => {
+      const host = document.createElement('div')
+      const mouseEvent = new MouseEvent('mouseover')
+      host.dispatchEvent(mouseEvent)
+      const focusEvent = new FocusEvent('focus')
+      host.dispatchEvent(focusEvent)
+
+      component.onMouseOver(mouseEvent)
+      component.onFocus(focusEvent)
+
+      expect(host.querySelector('.p-tooltip')).toBeNull()
+    })
+  })
+
   describe('loading announcement (a11y)', () => {
     it('announces loading via a polite live region while isLoading is true', () => {
       setAssistantState({ isLoading: true })
