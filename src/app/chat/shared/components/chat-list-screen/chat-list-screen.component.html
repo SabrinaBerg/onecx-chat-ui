@@ -99,8 +99,8 @@
           </p-tabpanels>
         </p-tabs>
         @if (isLoading()) {
-          <div class="flex justify-content-center py-3" id="chat_list_bottom_loader">
-            <i class="pi pi-spinner pi-spin text-600"></i>
+          <div class="flex justify-content-center" id="chat_list_bottom_loader">
+            <span class="loader"></span>
           </div>
           <output class="visually-hidden">
             {{ 'CHAT.LIST.LOADING_MORE' | translate }}

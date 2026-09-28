@@ -385,6 +385,7 @@ describe('ChatListScreenComponent', () => {
 
       const loader = fixture.debugElement.query(By.css('#chat_list_bottom_loader'))
       expect(loader).toBeTruthy()
+      expect(fixture.debugElement.query(By.css('#chat_list_bottom_loader .loader'))).toBeTruthy()
       for (const scroller of fixture.debugElement.queryAll(By.directive(Scroller))) {
         expect(scroller.query(By.css('#chat_list_bottom_loader'))).toBeNull()
       }
@@ -396,6 +397,19 @@ describe('ChatListScreenComponent', () => {
 
       const loader = fixture.debugElement.query(By.css('#chat_list_bottom_loader'))
       expect(loader).toBeNull()
+    })
+
+    it('never mutates the scroller container when loading toggles (no height/scrollbar flicker)', () => {
+      setAssistantState({ isLoading: false })
+      fixture.detectChanges()
+      const panel = fixture.debugElement.query(By.css('.p-tabpanels'))
+      const before = { className: panel.nativeElement.className, style: panel.nativeElement.style.cssText }
+
+      setAssistantState({ isLoading: true })
+      fixture.detectChanges()
+      const after = { className: panel.nativeElement.className, style: panel.nativeElement.style.cssText }
+
+      expect(after).toEqual(before)
     })
   })
 
