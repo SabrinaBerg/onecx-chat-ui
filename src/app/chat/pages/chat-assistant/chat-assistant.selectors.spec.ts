@@ -47,7 +47,8 @@ describe('ChatAssistant Selectors', () => {
     agents: CHAT_AGENTS,
     selectedAgentId: DEFAULT_AGENT_ID,
     voiceChatEnabled: false,
-    awaitingAssistantResponse: false
+    awaitingAssistantResponse: false,
+    isLoading: false
   }
 
   describe('chatAssistantSelectors', () => {
@@ -61,6 +62,33 @@ describe('ChatAssistant Selectors', () => {
       expect(fromSelectors.chatAssistantSelectors.selectCurrentChat).toBeDefined()
       expect(fromSelectors.chatAssistantSelectors.selectCurrentMessages).toBeDefined()
       expect(fromSelectors.chatAssistantSelectors.selectSelectedChatMode).toBeDefined()
+      expect(fromSelectors.chatAssistantSelectors.selectIsLoading).toBeDefined()
+    })
+  })
+
+  describe('selectHasMore', () => {
+    it('should be true when fewer chats are loaded than available', () => {
+      const result = fromSelectors.selectHasMore.projector(mockChats, 42)
+
+      expect(result).toBe(true)
+    })
+
+    it('should be false when all chats are already loaded', () => {
+      const result = fromSelectors.selectHasMore.projector(mockChats, 2)
+
+      expect(result).toBe(false)
+    })
+
+    it('should be false when no chats have been loaded yet and total is zero', () => {
+      const result = fromSelectors.selectHasMore.projector([], 0)
+
+      expect(result).toBe(false)
+    })
+
+    it('should be false when totalAvailableChats is undefined', () => {
+      const result = fromSelectors.selectHasMore.projector(mockChats, undefined)
+
+      expect(result).toBe(false)
     })
   })
 

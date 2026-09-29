@@ -21,6 +21,8 @@
               type="text"
               [ariaLabel]="'CHAT.LIST.SEARCH_INPUT' | translate"
               [pTooltip]="'CHAT.LIST.SEARCH_INPUT' | translate"
+              (onMouseOver)="onMouseOver($event)"
+              (onFocus)="onFocus($event)"
               tooltipPosition="top"
               [ngModel]="searchQueryValue"
               (ngModelChange)="onSearchQueryChange($event)"
@@ -71,7 +73,6 @@
               [items]="filteredChatsSignal()"
               [itemSize]="75"
               [showLoader]="true"
-              [delay]="50"
               [lazy]="true"
               (onLazyLoad)="onLazyLoad($event)"
               [scrollHeight]="'100%'"
@@ -96,6 +97,14 @@
             </p-tabpanel>
           </p-tabpanels>
         </p-tabs>
+        @if (isLoading()) {
+          <div class="flex justify-content-center" id="chat_list_bottom_loader">
+            <span class="loader"></span>
+          </div>
+          <output class="visually-hidden">
+            {{ 'CHAT.LIST.LOADING_MORE' | translate }}
+          </output>
+        }
       } @else {
         <div class="text-center" style="padding-top: 20vh">
           <i class="pi pi-comment text-6xl"></i>
@@ -117,6 +126,8 @@
         [styleClass]="'chat-create-fab-button'"
         [ariaLabel]="'CHAT.LIST.CREATE_CHAT_BUTTON' | translate"
         [pTooltip]="'CHAT.LIST.CREATE_CHAT_BUTTON' | translate"
+        (onMouseOver)="onMouseOver($event)"
+        (onFocus)="onFocus($event)"
         tooltipPosition="top"
         (onClick)="onCreateButtonClick()"
       ></p-button>

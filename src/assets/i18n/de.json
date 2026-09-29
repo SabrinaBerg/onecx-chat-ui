@@ -155,7 +155,8 @@
       "NO_CHATS": "Sie haben keine bestehenden Chats.",
       "CREATE_NEW": "Neuen Chat erstellen?",
       "CREATE_CHAT_BUTTON": "Neuen Chat erstellen",
-      "CHAT_TYPE_BUTTON": "Chat-Typ auswählen"
+      "CHAT_TYPE_BUTTON": "Chat-Typ auswählen",
+      "LOADING_MORE": "Weitere Chats werden geladen"
     },
     "OPTION": {
       "AI_SUBTITLE": "intelligente Antworten",

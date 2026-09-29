@@ -31,6 +31,17 @@ Object.defineProperty(globalThis, 'matchMedia', {
   }))
 })
 
+/* Mock ResizeObserver for tests (jsdom does not implement it; PrimeNG uses it in ngAfterViewInit) */
+class ResizeObserverMock {
+  observe = jest.fn()
+  unobserve = jest.fn()
+  disconnect = jest.fn()
+}
+Object.defineProperty(globalThis, 'ResizeObserver', {
+  writable: true,
+  value: ResizeObserverMock
+})
+
 /* fixes a bug with jsdom: ignoring this error message in log */
 const originalConsoleError = console.error
 type Err = { message: string }

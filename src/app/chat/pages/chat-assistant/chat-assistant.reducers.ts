@@ -18,7 +18,8 @@ export const initialState: ChatAssistantState = {
   agents: CHAT_AGENTS,
   selectedAgentId: DEFAULT_AGENT_ID,
   voiceChatEnabled: false,
-  awaitingAssistantResponse: false
+  awaitingAssistantResponse: false,
+  isLoading: false
 }
 
 const cleanTemp = (m?: { id?: string }) => {
@@ -92,6 +93,10 @@ export const chatAssistantReducer = createReducer(
       ]
     }
   }),
+  on(ChatAssistantActions.fetchNextChatsPage, (state: ChatAssistantState) => ({
+    ...state,
+    isLoading: true
+  })),
   on(ChatAssistantActions.chatsLoaded, (state: ChatAssistantState, action) => {
     const newChats = action.append
       ? [...state.chats, ...action.chats.filter((chat) => !state.chats.some((c) => c.id === chat.id))]
@@ -100,9 +105,14 @@ export const chatAssistantReducer = createReducer(
       ...state,
       chats: newChats,
       totalAvailableChats: action.totalElements,
-      loadedChatPages: action.append ? state.loadedChatPages + 1 : 1
+      loadedChatPages: action.append ? state.loadedChatPages + 1 : 1,
+      isLoading: false
     }
   }),
+  on(ChatAssistantActions.chatsLoadingFailed, (state: ChatAssistantState) => ({
+    ...state,
+    isLoading: false
+  })),
   on(ChatAssistantActions.messagesLoaded, (state: ChatAssistantState, action) => {
     return {
       ...state,

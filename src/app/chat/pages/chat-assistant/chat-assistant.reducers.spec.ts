@@ -46,7 +46,8 @@ describe('ChatAssistant Reducer', () => {
         agents: CHAT_AGENTS,
         selectedAgentId: DEFAULT_AGENT_ID,
         voiceChatEnabled: false,
-        awaitingAssistantResponse: false
+        awaitingAssistantResponse: false,
+        isLoading: false
       })
     })
 
@@ -530,6 +531,44 @@ describe('ChatAssistant Reducer', () => {
       const result = chatAssistantReducer(stateWithExisting, action)
 
       expect(result.chats).toEqual([...existing, { id: 'c', topic: 'C' }])
+    })
+
+    it('should reset isLoading to false when a page load succeeds', () => {
+      const loading: ChatAssistantState = { ...initialState, isLoading: true }
+
+      const result = chatAssistantReducer(
+        loading,
+        ChatAssistantActions.chatsLoaded({ chats: mockChats, totalElements: 42 })
+      )
+
+      expect(result.isLoading).toBe(false)
+    })
+  })
+
+  describe('fetchNextChatsPage action', () => {
+    it('should set isLoading to true when a page load is dispatched', () => {
+      const idle: ChatAssistantState = { ...initialState, isLoading: false }
+
+      const result = chatAssistantReducer(idle, ChatAssistantActions.fetchNextChatsPage())
+
+      expect(result.isLoading).toBe(true)
+    })
+  })
+
+  describe('chatsLoadingFailed action', () => {
+    it('should reset isLoading to false so a failed fetch does not leave a stuck loader', () => {
+      const loading: ChatAssistantState = {
+        ...initialState,
+        isLoading: true,
+        chats: mockChats,
+        totalAvailableChats: 42
+      }
+
+      const result = chatAssistantReducer(loading, ChatAssistantActions.chatsLoadingFailed({ error: 'boom' }))
+
+      expect(result.isLoading).toBe(false)
+      expect(result.chats).toEqual(mockChats)
+      expect(result.totalAvailableChats).toBe(42)
     })
   })
 

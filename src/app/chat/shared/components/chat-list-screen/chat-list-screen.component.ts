@@ -21,7 +21,8 @@ import { Chat, ChatType } from 'src/app/shared/generated'
 import { ChatAssistantActions } from 'src/app/chat/pages/chat-assistant/chat-assistant.actions'
 import {
   chatAssistantSelectors,
-  mapChatTypeToTitleKey
+  mapChatTypeToTitleKey,
+  selectHasMore
 } from 'src/app/chat/pages/chat-assistant/chat-assistant.selectors'
 import { ChatHeaderComponent } from '../chat-header/chat-header.component'
 import { ChatSettingsComponent } from '../chat-settings/chat-settings.component'
@@ -66,6 +67,8 @@ export class ChatListScreenComponent implements OnInit {
   filteredChats$: Observable<Chat[]>
   searchQuery$: Observable<string>
   protected readonly filteredChatsSignal: Signal<Chat[]>
+  protected readonly isLoading: Signal<boolean>
+  protected readonly hasMore: Signal<boolean>
   isCreatingChat = false
   pendingMode: ChatType | null = null
 
@@ -77,6 +80,8 @@ export class ChatListScreenComponent implements OnInit {
     this.filteredChats$ = this.store.select(chatAssistantSelectors.selectChats)
     this.searchQuery$ = this.store.select(chatAssistantSelectors.selectSearchQuery)
     this.filteredChatsSignal = toSignal(this.filteredChats$, { initialValue: [] })
+    this.isLoading = toSignal(this.store.select(chatAssistantSelectors.selectIsLoading), { initialValue: false })
+    this.hasMore = toSignal(this.store.select(selectHasMore), { initialValue: true })
   }
 
   ngOnInit() {
@@ -100,6 +105,10 @@ export class ChatListScreenComponent implements OnInit {
   }
 
   onLazyLoad(event: ScrollerLazyLoadEvent): void {
+    if (!this.hasMore()) {
+      return
+    }
+
     this.store.dispatch(ChatAssistantActions.fetchNextChatsPage())
   }
 
@@ -179,6 +188,21 @@ export class ChatListScreenComponent implements OnInit {
   onSearchQueryChange(query: string): void {
     this.searchQueryValue = query
     this.store.dispatch(ChatAssistantActions.searchQueryChanged({ query }))
+  }
+
+  onMouseOver(event: Event): void {
+    this.showTooltip(event.target)
+  }
+
+  onFocus(event: Event): void {
+    this.showTooltip(event.target)
+  }
+
+  private showTooltip(target: EventTarget | null): void {
+    const tooltip = (target as HTMLElement).querySelector<HTMLElement>('.p-tooltip')
+    if (tooltip) {
+      tooltip.style.display = 'block'
+    }
   }
 
   protected getGreetingKey(): string {
