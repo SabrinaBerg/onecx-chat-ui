@@ -46,6 +46,7 @@ describe('ChatAssistant Selectors', () => {
     loadedChatPages: 0,
     agents: CHAT_AGENTS,
     selectedAgentId: DEFAULT_AGENT_ID,
+    agentSelectionMade: false,
     voiceChatEnabled: false,
     awaitingAssistantResponse: false,
     isLoading: false

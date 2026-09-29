@@ -17,6 +17,7 @@ export const initialState: ChatAssistantState = {
   settingsOpen: false,
   agents: CHAT_AGENTS,
   selectedAgentId: DEFAULT_AGENT_ID,
+  agentSelectionMade: false,
   voiceChatEnabled: false,
   awaitingAssistantResponse: false,
   isLoading: false
@@ -213,13 +214,15 @@ export const chatAssistantReducer = createReducer(
   on(ChatAssistantActions.agentsLoaded, (state, action) => ({
     ...state,
     agents: action.agents,
-    selectedAgentId: action.agents.some((agent) => agent.id === state.selectedAgentId)
-      ? state.selectedAgentId
-      : resolveDefaultAgentId(action.agents, action.appId)
+    selectedAgentId:
+      state.agentSelectionMade && action.agents.some((agent) => agent.id === state.selectedAgentId)
+        ? state.selectedAgentId
+        : resolveDefaultAgentId(action.agents, action.appId)
   })),
   on(ChatAssistantActions.agentSelected, (state, action) => ({
     ...state,
-    selectedAgentId: action.agentId
+    selectedAgentId: action.agentId,
+    agentSelectionMade: true
   })),
   on(ChatAssistantActions.voiceChatEnabled, (state) => ({
     ...state,

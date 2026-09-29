@@ -45,6 +45,7 @@ describe('ChatAssistant Reducer', () => {
         loadedChatPages: 0,
         agents: CHAT_AGENTS,
         selectedAgentId: DEFAULT_AGENT_ID,
+        agentSelectionMade: false,
         voiceChatEnabled: false,
         awaitingAssistantResponse: false,
         isLoading: false
@@ -1095,13 +1096,28 @@ describe('ChatAssistant Reducer', () => {
       filter: null
     }
 
-    it('should keep the current selection when that agent is still present', () => {
-      const state: ChatAssistantState = { ...initialState, selectedAgentId: 'app-agent' }
+    it('should keep an explicitly selected agent when it is still present', () => {
+      const state: ChatAssistantState = { ...initialState, selectedAgentId: 'other-agent', agentSelectionMade: true }
       const action = ChatAssistantActions.agentsLoaded({ agents: [appAgent, otherAgent], appId: 'my-app' })
 
       const result = chatAssistantReducer(state, action)
 
       expect(result.agents).toEqual([appAgent, otherAgent])
+      expect(result.selectedAgentId).toBe('other-agent')
+    })
+
+    it('should select the context-matching agent over the untouched initial default on the initial load', () => {
+      const defaultAgent = {
+        id: DEFAULT_AGENT_ID,
+        labelKey: 'CHAT.AGENTS.DEFAULT',
+        agentName: 'assistant',
+        gatherContext: false,
+        filter: null
+      }
+      const action = ChatAssistantActions.agentsLoaded({ agents: [defaultAgent, appAgent], appId: 'my-app' })
+
+      const result = chatAssistantReducer(initialState, action)
+
       expect(result.selectedAgentId).toBe('app-agent')
     })
 
@@ -1149,7 +1165,8 @@ describe('ChatAssistant Reducer', () => {
 
       expect(result).toEqual({
         ...initialState,
-        selectedAgentId: 'test-agent-id'
+        selectedAgentId: 'test-agent-id',
+        agentSelectionMade: true
       })
     })
   })
