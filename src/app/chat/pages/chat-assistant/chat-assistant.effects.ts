@@ -22,7 +22,7 @@ import {
   timer
 } from 'rxjs'
 
-import { UserService } from '@onecx/angular-integration-interface'
+import { AppStateService, UserService } from '@onecx/angular-integration-interface'
 import { AiContextGatherer, AiContextResponse } from '@onecx/integration-interface'
 
 import { environment } from 'src/environments/environment'
@@ -90,7 +90,8 @@ export class ChatAssistantEffects implements OnDestroy {
     private readonly router: Router,
     private readonly store: Store,
     private readonly userService: UserService,
-    private readonly translateService: TranslateService
+    private readonly translateService: TranslateService,
+    private readonly appStateService: AppStateService
   ) {}
 
   ngOnDestroy(): void {
@@ -153,30 +154,37 @@ export class ChatAssistantEffects implements OnDestroy {
     return this.actions$.pipe(
       ofType(ChatAssistantActions.loadAgents),
       switchMap(() =>
-        this.agentService
-          .findAgentBySearchCriteria({
-            pageNumber: 0,
-            pageSize: 100
-          })
-          .pipe(
-            map((response) => {
-              const mappedAgents = (response.stream ?? []).map((agent) => {
-                const mappedAgent = mapAgentToChatAgent(agent)
-                return mappedAgent
+        this.appStateService.currentMfe$.pipe(
+          take(1),
+          map((mfe) => mfe?.appId || undefined),
+          switchMap((appId) =>
+            this.agentService
+              .findAgentBySearchCriteria({
+                pageNumber: 0,
+                pageSize: 100
               })
-              const agents = mappedAgents.filter(isChatAgent)
-              return ChatAssistantActions.agentsLoaded({
-                agents
-              })
-            }),
-            catchError((error) =>
-              of(
-                ChatAssistantActions.agentsLoadingFailed({
-                  error
-                })
+              .pipe(
+                map((response) => {
+                  const mappedAgents = (response.stream ?? []).map((agent) => {
+                    const mappedAgent = mapAgentToChatAgent(agent)
+                    return mappedAgent
+                  })
+                  const agents = mappedAgents.filter(isChatAgent)
+                  return ChatAssistantActions.agentsLoaded({
+                    agents,
+                    appId
+                  })
+                }),
+                catchError((error) =>
+                  of(
+                    ChatAssistantActions.agentsLoadingFailed({
+                      error
+                    })
+                  )
+                )
               )
-            )
           )
+        )
       )
     )
   })

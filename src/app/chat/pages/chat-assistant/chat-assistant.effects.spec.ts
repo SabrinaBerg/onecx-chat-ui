@@ -4,9 +4,9 @@ import { Actions } from '@ngrx/effects'
 import { provideMockActions } from '@ngrx/effects/testing'
 import { routerNavigatedAction, RouterNavigatedPayload } from '@ngrx/router-store'
 import { MockStore, provideMockStore } from '@ngrx/store/testing'
-import { Observable, of, Subject, throwError } from 'rxjs'
+import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs'
 import { take, toArray } from 'rxjs/operators'
-import { UserService } from '@onecx/angular-integration-interface'
+import { AppStateService, MfeInfo, UserService } from '@onecx/angular-integration-interface'
 import { TranslateService } from '@ngx-translate/core'
 import { ChatInternalService } from 'src/app/shared/services/chat-internal.service'
 import {
@@ -39,6 +39,7 @@ describe('ChatAssistantEffects', () => {
   let remoteChatInternalService: any
   let profileSubject: Subject<any>
   let translateService: any
+  let appStateSubject: BehaviorSubject<MfeInfo>
 
   const mockUser = 'user-123'
 
@@ -95,6 +96,14 @@ describe('ChatAssistantEffects', () => {
     jest.clearAllMocks()
     environment.chatMessageProcessingMode = 'async'
     profileSubject = new Subject<any>()
+    appStateSubject = new BehaviorSubject<MfeInfo>({
+      mountPath: '/',
+      remoteBaseUrl: '.',
+      baseHref: '/',
+      shellName: 'standalone',
+      appId: '',
+      productName: ''
+    })
     translateService = {
       get: jest.fn((key: string) => of(key === 'CHAT.TITLE.DIRECT' ? 'Direct Chat' : key))
     }
@@ -125,7 +134,8 @@ describe('ChatAssistantEffects', () => {
         { provide: Router, useValue: routerSpy },
         { provide: UserService, useValue: { profile$: profileSubject.asObservable() } },
         { provide: TranslateService, useValue: translateService },
-        { provide: AgentService, useValue: agentServiceSpy }
+        { provide: AgentService, useValue: agentServiceSpy },
+        { provide: AppStateService, useValue: { currentMfe$: appStateSubject } }
       ]
     })
     agentServiceSpy.findAgentBySearchCriteria.mockReturnValue(
@@ -338,6 +348,25 @@ describe('ChatAssistantEffects', () => {
               },
               { id: 'agent-2', labelKey: 'Simple Agent', agentName: 'Simple Agent', gatherContext: false, filter: null }
             ]
+          })
+        )
+        done()
+      })
+    })
+
+    it('should include the application context appId from the current mfe in agentsLoaded', (done) => {
+      appStateSubject.next({ appId: 'context-app' } as MfeInfo)
+      agentServiceSpy.findAgentBySearchCriteria.mockReturnValue(of({ stream: [{ id: 'agent-1', name: 'Test Agent' }] }))
+
+      actions$ = of(ChatAssistantActions.loadAgents())
+
+      effects.loadAgents$.pipe(take(1)).subscribe((result) => {
+        expect(result).toEqual(
+          ChatAssistantActions.agentsLoaded({
+            agents: [
+              { id: 'agent-1', labelKey: 'Test Agent', agentName: 'Test Agent', gatherContext: false, filter: null }
+            ],
+            appId: 'context-app'
           })
         )
         done()

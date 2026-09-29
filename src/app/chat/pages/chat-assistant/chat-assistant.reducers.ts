@@ -2,7 +2,7 @@ import { createReducer, on } from '@ngrx/store'
 
 import { Chat, ChatType, MessageType } from 'src/app/shared/generated'
 import { ChatAssistantActions } from './chat-assistant.actions'
-import { CHAT_AGENTS, ChatAssistantState, DEFAULT_AGENT_ID } from './chat-assistant.state'
+import { CHAT_AGENTS, ChatAgent, ChatAssistantState, DEFAULT_AGENT_ID } from './chat-assistant.state'
 
 export const initialState: ChatAssistantState = {
   user: undefined,
@@ -36,6 +36,18 @@ const mergeChat = (currentChat: Chat | undefined, actionChat: Partial<Chat>): Ch
 
 const updateChatsInList = (chats: Chat[], updatedChat: Chat, actionChat: Partial<Chat>): Chat[] => {
   return updatedChat?.id ? chats.map((c) => (c.id === updatedChat.id ? mergeChat(c, actionChat) : c)) : chats
+}
+
+const chatTimestamp = (chat: Chat): number => {
+  const time = new Date(chat.modificationDate ?? '').getTime()
+  return Number.isNaN(time) ? 0 : time
+}
+
+const sortChats = (chats: Chat[]): Chat[] => [...chats].sort((a, b) => chatTimestamp(b) - chatTimestamp(a))
+
+const resolveDefaultAgentId = (agents: ChatAgent[], appId?: string): string => {
+  const contextAgent = appId ? agents.find((agent) => agent.filter?.value === appId) : undefined
+  return contextAgent?.id ?? agents[0]?.id ?? DEFAULT_AGENT_ID
 }
 
 export const chatAssistantReducer = createReducer(
@@ -103,7 +115,7 @@ export const chatAssistantReducer = createReducer(
       : action.chats
     return {
       ...state,
-      chats: newChats,
+      chats: sortChats(newChats),
       totalAvailableChats: action.totalElements,
       loadedChatPages: action.append ? state.loadedChatPages + 1 : 1,
       isLoading: false
@@ -203,7 +215,7 @@ export const chatAssistantReducer = createReducer(
     agents: action.agents,
     selectedAgentId: action.agents.some((agent) => agent.id === state.selectedAgentId)
       ? state.selectedAgentId
-      : (action.agents[0]?.id ?? DEFAULT_AGENT_ID)
+      : resolveDefaultAgentId(action.agents, action.appId)
   })),
   on(ChatAssistantActions.agentSelected, (state, action) => ({
     ...state,
