@@ -10,6 +10,7 @@ import { NotificationService } from '@onecx/angular-integration-interface'
 import { AngularAcceleratorModule } from '@onecx/angular-accelerator'
 
 import { ChatType } from 'src/app/shared/generated'
+import { ChatPanelVisibilityTopic } from 'src/app/shared/topics/chat-panel-visibility.topic'
 import { ChatAssistantActions } from './chat-assistant.actions'
 import { ChatAssistantComponent } from './chat-assistant.component'
 import { initialState } from './chat-assistant.reducers'
@@ -199,6 +200,61 @@ describe('ChatAssistantComponent', () => {
 
       expect(store.dispatch).not.toHaveBeenCalled()
       expect(component._sidebarVisible).toBe(false)
+    })
+  })
+
+  describe('visibility topic', () => {
+    afterEach(() => jest.restoreAllMocks())
+
+    it('should open the panel when visibility true is published', async () => {
+      jest.spyOn(store, 'dispatch')
+
+      await new ChatPanelVisibilityTopic().publish(true)
+      await fixture.whenStable()
+
+      expect(component._sidebarVisible).toBe(true)
+      expect(store.dispatch).toHaveBeenCalledWith(ChatAssistantActions.chatPanelOpened())
+    })
+
+    it('should close the panel when visibility false is published', async () => {
+      jest.spyOn(store, 'dispatch')
+      component.sidebarVisible = true
+
+      await new ChatPanelVisibilityTopic().publish(false)
+      await fixture.whenStable()
+
+      expect(component._sidebarVisible).toBe(false)
+      expect(store.dispatch).toHaveBeenCalledWith(ChatAssistantActions.chatPanelClosed())
+    })
+
+    it('should publish false when the panel closes itself', () => {
+      const publishSpy = jest.spyOn(ChatPanelVisibilityTopic.prototype, 'publish').mockResolvedValue()
+      component._sidebarVisible = true
+
+      component.closeSidebar()
+
+      expect(publishSpy).toHaveBeenCalledWith(false)
+    })
+  })
+
+  describe('escape key', () => {
+    afterEach(() => jest.restoreAllMocks())
+
+    it('should close the panel when open', () => {
+      jest.spyOn(ChatPanelVisibilityTopic.prototype, 'publish').mockResolvedValue()
+      component._sidebarVisible = true
+
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+
+      expect(component._sidebarVisible).toBe(false)
+    })
+
+    it('should do nothing when the panel is closed', () => {
+      jest.spyOn(store, 'dispatch')
+
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+
+      expect(store.dispatch).not.toHaveBeenCalled()
     })
   })
 

@@ -1,22 +1,29 @@
-:host ::ng-deep {
-  .chat-button {
-    color: var(--topbar-item-text-color) !important;
+:host {
+  display: block;
+  height: 100%;
+}
 
-    .pi {
-      font-size: 2rem !important;
-    }
+.chat-panel {
+  position: relative;
+  height: 100%;
+  width: 0;
+  overflow: hidden;
+  transition: width 0.3s ease;
 
-    &:hover,
-    &:focus {
-      color: var(--topbar-item-text-hover-color) !important;
-      background-color: var(--topbar-item-text-hover-bg-color) !important;
-      transition: background-color var(--transition-duration);
-    }
+  &.chat-panel-open {
+    width: 20rem;
   }
 }
 
-.onecx-companion-container {
+.chat-panel-content {
+  width: 20rem;
   height: 100%;
+  visibility: hidden;
+  transition: visibility 0.3s;
+
+  .chat-panel-open & {
+    visibility: visible;
+  }
 }
 
 .chat-interface {

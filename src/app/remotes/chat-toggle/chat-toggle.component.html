@@ -1,0 +1,15 @@
+<div class="layout-topbar-item">
+  <button
+    pButton
+    type="button"
+    class="chat-button border-none p-4"
+    icon="pi pi-comments"
+    [rounded]="true"
+    [text]="true"
+    [attr.aria-label]="'CHAT.TITLE_AI' | translate"
+    [attr.aria-expanded]="visible"
+    [pTooltip]="'CHAT.TITLE_AI' | translate"
+    tooltipPosition="bottom"
+    (click)="toggle()"
+  ></button>
+</div>

@@ -7,7 +7,8 @@ const config = withModuleFederationPlugin({
   filename: 'remoteEntry.js',
   exposes: {
     './OneCXChatModule': './src/main.ts',
-    './OneCXChatPanelComponent': 'src/app/remotes/chat-panel/chat-panel.component.main.ts'
+    './OneCXChatPanelComponent': 'src/app/remotes/chat-panel/chat-panel.component.main.ts',
+    './OneCXChatToggleComponent': 'src/app/remotes/chat-toggle/chat-toggle.component.main.ts'
   },
   shared: share({
     '@angular/core': { requiredVersion: 'auto', includeSecondaries: true },

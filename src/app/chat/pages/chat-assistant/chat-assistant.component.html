@@ -1,12 +1,7 @@
-<app-chat-slider
-  [(visible)]="_sidebarVisible"
-  [modal]="false"
-  [position]="'right'"
-  [styleClass]="'onecx-chat-sidebar p-0 w-full md:w-30rem lg:w-50rem'"
->
+<aside class="chat-panel" [attr.aria-label]="'CHAT.TITLE_AI' | translate" [class.chat-panel-open]="_sidebarVisible">
   @let vm = viewModel$ | async;
   @if (vm) {
-    <div class="onecx-companion-container h-full flex flex-column">
+    <div class="onecx-companion-container chat-panel-content flex flex-column">
       @if (!vm.selectedChatMode && !vm.currentChat) {
         <app-chat-list-screen
           class="flex-1 min-h-0"
@@ -20,7 +15,7 @@
           <app-chat-header
             [title]="(vm.settingsOpen ? 'CHAT.SETTINGS.TITLE' : vm.chatTitleKey) | translate"
             [showBack]="true"
-            [showClose]="vm.settingsOpen"
+            [showClose]="true"
             [showSettings]="!vm.settingsOpen && vm.currentChat?.id !== 'new'"
             [backLabelKey]="vm.settingsOpen ? 'CHAT.HEADER.BACK_TO_CHAT' : 'CHAT.HEADER.BACK_TO_CHATLIST'"
             (backClicked)="vm.settingsOpen ? closeSettings() : goBack()"
@@ -59,17 +54,4 @@
       }
     </div>
   }
-</app-chat-slider>
-<div class="layout-topbar-item">
-  <p-button
-    icon="pi pi-comments"
-    [rounded]="true"
-    [text]="true"
-    [styleClass]="'chat-button border-none p-4'"
-    [ariaLabel]="'CHAT.TITLE_AI' | translate"
-    [pTooltip]="'CHAT.TITLE_AI' | translate"
-    tooltipPosition="top"
-    (onClick)="sidebarVisible = true"
-    (keydown.enter)="sidebarVisible = true"
-  />
-</div>
+</aside>
