@@ -11,12 +11,12 @@
   transition: width 0.3s ease;
 
   &.chat-panel-open {
-    width: 20rem;
+    width: 30rem;
   }
 }
 
 .chat-panel-content {
-  width: 20rem;
+  width: 30rem;
   height: 100%;
   visibility: hidden;
   transition: visibility 0.3s;
