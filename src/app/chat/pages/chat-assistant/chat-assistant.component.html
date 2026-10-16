@@ -1,7 +1,7 @@
 <aside class="chat-panel" [attr.aria-label]="'CHAT.TITLE_AI' | translate" [class.chat-panel-open]="_sidebarVisible">
   @let vm = viewModel$ | async;
   @if (vm) {
-    <div class="onecx-companion-container chat-panel-content flex flex-column">
+    <div class="onecx-companion-container chat-panel-content flex flex-column min-w-0 min-h-0 overflow-hidden">
       @if (!vm.selectedChatMode && !vm.currentChat) {
         <app-chat-list-screen
           class="flex-1 min-h-0"
@@ -11,7 +11,7 @@
           [chats]="vm.chats ?? []"
         ></app-chat-list-screen>
       } @else {
-        <div class="chat-interface flex-1 flex flex-column min-h-0" [@slideIn]>
+        <div class="chat-interface flex-1 flex flex-column min-w-0 min-h-0 overflow-hidden" [@slideIn]>
           <app-chat-header
             [title]="(vm.settingsOpen ? 'CHAT.SETTINGS.TITLE' : vm.chatTitleKey) | translate"
             [showBack]="true"
@@ -32,7 +32,7 @@
             ></app-chat-settings>
           } @else if (vm.currentChat?.id) {
             <app-chat
-              class="flex-1 min-h-0"
+              class="flex-1 min-w-0 min-h-0 overflow-hidden"
               [chatId]="vm.currentChat?.id"
               [chatMessages]="vm.currentMessages ?? []"
               [agents]="vm.agents"
