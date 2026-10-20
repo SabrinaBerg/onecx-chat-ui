@@ -71,6 +71,17 @@ describe('OneCXChatPanelComponent', () => {
 
       expect(fixture.nativeElement.querySelector('.chat-panel-open')).toBeNull()
     })
+
+    it('should constrain overflow at the remote component host', () => {
+      setUp()
+
+      const hostStyles = fixture.nativeElement.style
+
+      expect(hostStyles.display).toBe('block')
+      expect(hostStyles.flex).toBe('0 0 auto')
+      expect(hostStyles.overflow).toBe('hidden')
+      expect(hostStyles.minHeight).toBe('0')
+    })
   })
 
   describe('ocxInitRemoteComponent', () => {

@@ -243,12 +243,14 @@ describe('ChatComponent', () => {
     })
 
     it('should scroll after the initial messages render without a chat id change', () => {
+      const scrollToBottomSpy = jest.spyOn(scrollService, 'scrollToBottom')
       setScrollDimensions(scrollContainer, { scrollHeight: 800, scrollTop: 100, clientHeight: 300 })
 
       component.ngOnChanges({ chatMessages: new SimpleChange(undefined, [createMessage('2')], true) })
       component.ngAfterViewChecked()
 
       expect(scrollContainer.scrollTop).toBe(800)
+      expect(scrollToBottomSpy).toHaveBeenCalledWith('auto')
     })
 
     it('should ignore a message replacement that does not increase the message count', () => {

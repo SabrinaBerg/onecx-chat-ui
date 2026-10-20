@@ -147,8 +147,6 @@
     "LIST": {
       "SEARCH_PLACEHOLDER": "Chats durchsuchen...",
       "SEARCH_INPUT": "Suche Chats mit Text im Namen",
-      "RELATED_CHATS": "Ähnliche Chats",
-      "ALL_CHATS": "Alle Chats",
       "AI": "KI",
       "START": "Starten",
       "NO_MATCHING_CHATS": "Keine passenden Chats gefunden",

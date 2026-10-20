@@ -70,13 +70,13 @@ export class ChatScrollService {
    * Scrolls the container to the bottom smoothly.
    * Falls back to direct scrollTop assignment if scrollTo is not available.
    */
-  public scrollToBottom(): void {
+  public scrollToBottom(behavior: ScrollBehavior = 'smooth'): void {
     const container = this.scrollContainer
     if (!container) return
 
     const top = container.scrollHeight
     if (container.scrollTo) {
-      container.scrollTo({ top, behavior: 'smooth' })
+      container.scrollTo({ top, behavior })
     } else {
       container.scrollTop = top
     }

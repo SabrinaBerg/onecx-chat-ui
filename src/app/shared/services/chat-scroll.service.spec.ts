@@ -206,6 +206,24 @@ describe('ChatScrollService', () => {
       document.body.removeChild(element)
     })
 
+    it('should use instant scrolling when requested', () => {
+      const { element, setDimensions } = createMockContainer()
+      setDimensions(800, 100, 300)
+
+      const scrollToSpy = jest.fn()
+      element.scrollTo = scrollToSpy
+
+      service.init(element)
+      service.scrollToBottom('auto')
+
+      expect(scrollToSpy).toHaveBeenCalledWith({
+        top: 800,
+        behavior: 'auto'
+      })
+
+      document.body.removeChild(element)
+    })
+
     it('should use scrollTop fallback when scrollTo is unavailable', () => {
       const { element, setDimensions } = createMockContainer()
       setDimensions(800, 100, 300)
