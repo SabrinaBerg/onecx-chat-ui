@@ -1137,6 +1137,15 @@ describe('ChatAssistant Reducer', () => {
       expect(result.selectedAgentId).toBe('other-agent')
     })
 
+    it('should ignore agents whose filter key is not APP_ID', () => {
+      const wrongKeyAgent = { ...appAgent, id: 'wrong-key', filter: { key: 'OTHER', value: 'my-app' } } as any
+      const action = ChatAssistantActions.agentsLoaded({ agents: [otherAgent, wrongKeyAgent], appId: 'my-app' })
+
+      const result = chatAssistantReducer(initialState, action)
+
+      expect(result.selectedAgentId).toBe('other-agent')
+    })
+
     it('should fall back to the first agent when no application context is provided', () => {
       const action = ChatAssistantActions.agentsLoaded({ agents: [otherAgent, appAgent] })
 

@@ -47,7 +47,9 @@ const chatTimestamp = (chat: Chat): number => {
 const sortChats = (chats: Chat[]): Chat[] => [...chats].sort((a, b) => chatTimestamp(b) - chatTimestamp(a))
 
 const resolveDefaultAgentId = (agents: ChatAgent[], appId?: string): string => {
-  const contextAgent = appId ? agents.find((agent) => agent.filter?.value === appId) : undefined
+  const contextAgent = appId
+    ? agents.find((agent) => agent.filter?.key === 'APP_ID' && agent.filter.value === appId)
+    : undefined
   return contextAgent?.id ?? agents[0]?.id ?? DEFAULT_AGENT_ID
 }
 
