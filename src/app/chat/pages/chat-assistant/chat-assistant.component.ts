@@ -1,9 +1,11 @@
 import { AsyncPipe } from '@angular/common'
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   EventEmitter,
+  HostListener,
   Input,
   OnChanges,
   Output,
@@ -26,10 +28,10 @@ import { NotificationService } from '@onecx/angular-integration-interface'
 
 import { ChatComponent } from 'src/app/shared/components/chat/chat.component'
 import { Chat, ChatType } from 'src/app/shared/generated'
+import { ChatPanelVisibilityTopic } from 'src/app/shared/topics/chat-panel-visibility.topic'
 import { environment } from 'src/environments/environment'
 import { ChatHeaderComponent } from 'src/app/chat/shared/components/chat-header/chat-header.component'
 import { ChatListScreenComponent } from 'src/app/chat/shared/components/chat-list-screen/chat-list-screen.component'
-import { ChatSliderComponent } from 'src/app/chat/shared/components/chat-slider/chat-slider.component'
 import {
   ChatSettingsComponent,
   ChatSettingsFormValue
@@ -51,7 +53,6 @@ import { ChatAssistantViewModel } from './chat-assistant.viewmodel'
     ChatComponent,
     TooltipModule,
     SelectModule,
-    ChatSliderComponent,
     ChatHeaderComponent,
     ChatListScreenComponent,
     ChatSettingsComponent
@@ -65,6 +66,7 @@ export class ChatAssistantComponent implements OnChanges {
   viewModel$: Observable<ChatAssistantViewModel>
   private readonly destroyRef = inject(DestroyRef)
   protected readonly ChatType = ChatType
+  private readonly visibilityTopic = new ChatPanelVisibilityTopic()
   _sidebarVisible = false
 
   @Input()
@@ -79,12 +81,24 @@ export class ChatAssistantComponent implements OnChanges {
 
   constructor(
     private readonly store: Store,
-    private readonly notificationService: NotificationService
+    private readonly notificationService: NotificationService,
+    private readonly cdr: ChangeDetectorRef
   ) {
     this.viewModel$ = this.store.select(selectChatAssistantViewModel)
     this.notificationService.notificationTopic.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((notification) => {
       this.store.dispatch(ChatAssistantActions.notificationReceived({ notification }))
     })
+    this.visibilityTopic.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((visible) => {
+      if (visible !== this._sidebarVisible) {
+        if (visible) {
+          this.sidebarVisible = true
+        } else {
+          this.closeSidebar()
+        }
+        this.cdr.markForCheck()
+      }
+    })
+    this.destroyRef.onDestroy(() => this.visibilityTopic.destroy())
   }
 
   sendMessage(message: string) {
@@ -124,9 +138,7 @@ export class ChatAssistantComponent implements OnChanges {
   // NEW METHODS ONECX COMPANION
   selectChatMode(event: { mode: ChatType | 'close'; chatName?: string }) {
     if (event.mode === 'close') {
-      this._sidebarVisible = false
-      this.sidebarVisibleChange.emit(false)
-      this.store.dispatch(ChatAssistantActions.chatPanelClosed())
+      this.closeSidebar()
       return
     }
 
@@ -146,6 +158,14 @@ export class ChatAssistantComponent implements OnChanges {
     this._sidebarVisible = false
     this.sidebarVisibleChange.emit(false)
     this.store.dispatch(ChatAssistantActions.chatPanelClosed())
+    this.visibilityTopic.publish(false)
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape() {
+    if (this._sidebarVisible) {
+      this.closeSidebar()
+    }
   }
 
   openSettings() {

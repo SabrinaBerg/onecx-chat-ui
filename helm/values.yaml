@@ -24,6 +24,13 @@ app:
           technology: WEBCOMPONENTMODULE
           remoteName: onecx-chat
           tagName: ocx-chat-panel-component
+        chat-toggle:
+          exposedModule: "./OneCXChatToggleComponent"
+          description: "Display chat toggle"
+          type: COMPONENT
+          technology: WEBCOMPONENTMODULE
+          remoteName: onecx-chat
+          tagName: ocx-chat-toggle-component
     permission:
       enabled: true
       spec:

@@ -34,8 +34,8 @@ export class VoiceWaveformComponent implements OnChanges, OnDestroy {
     this.stopAudioMeter()
   }
 
-  private async startAudioMeter(stream: MediaStream): Promise<void> {
-    if (this.audioContext) return
+  private startAudioMeter(stream: MediaStream): Promise<void> {
+    if (this.audioContext) return Promise.resolve()
     try {
       this.audioContext = new AudioContext()
       this.analyser = this.audioContext.createAnalyser()
@@ -62,8 +62,10 @@ export class VoiceWaveformComponent implements OnChanges, OnDestroy {
         this.rafId = requestAnimationFrame(update)
       }
       update()
+      return Promise.resolve()
     } catch (error) {
       console.error('Unable to start audio meter:', error)
+      return Promise.resolve()
     }
   }
 
@@ -73,7 +75,7 @@ export class VoiceWaveformComponent implements OnChanges, OnDestroy {
       this.rafId = undefined
     }
     if (this.audioContext) {
-      this.audioContext.close()
+      this.audioContext.close().catch((err) => console.error(err))
       this.audioContext = undefined
     }
     this.analyser = undefined

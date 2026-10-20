@@ -48,6 +48,11 @@ export function slotInitializer(slotService: SlotService) {
     PortalMessageService,
     ChatsService
   ],
+  styles: `
+    :host {
+      height: 100%;
+    }
+  `,
   templateUrl: './chat-panel.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })

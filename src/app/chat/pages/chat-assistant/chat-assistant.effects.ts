@@ -78,9 +78,7 @@ const isChatAgent = (agent: ChatAgent | undefined): agent is ChatAgent => !!agen
 
 @Injectable()
 export class ChatAssistantEffects implements OnDestroy {
-  private readonly defaultAiContext = async (): Promise<null> => {
-    return null
-  }
+  private readonly defaultAiContext = (): Promise<null> => Promise.resolve(null)
   private readonly aiContextGatherer = new AiContextGatherer(this.defaultAiContext)
   constructor(
     private readonly actions$: Actions,
@@ -493,7 +491,7 @@ export class ChatAssistantEffects implements OnDestroy {
     return this.actions$.pipe(
       ofType(ChatAssistantActions.messageSent),
       concatLatestFrom(() => [this.store.select(chatAssistantSelectors.selectCurrentChat)]),
-      filter(([, chat]) => chat !== undefined && chat.type === ChatType.AiChat),
+      filter(([, chat]) => chat?.type === ChatType.AiChat),
       switchMap(([action, chat]) => {
         const activeChatId = chat?.id ?? ''
 

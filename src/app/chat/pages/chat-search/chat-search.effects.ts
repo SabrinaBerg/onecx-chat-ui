@@ -45,12 +45,14 @@ export class ChatSearchEffects {
             const params = {
               ...criteria
             }
-            this.router.navigate([], {
-              relativeTo: this.route,
-              queryParams: params,
-              replaceUrl: true,
-              onSameUrlNavigation: 'ignore'
-            })
+            Promise.resolve(
+              this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: params,
+                replaceUrl: true,
+                onSameUrlNavigation: 'ignore'
+              })
+            ).catch((err) => console.error(err))
           }
         })
       )
@@ -67,7 +69,9 @@ export class ChatSearchEffects {
           const urlTree = this.router.parseUrl(currentUrl)
           urlTree.queryParams = {}
           urlTree.fragment = null
-          this.router.navigate([urlTree.toString(), 'details', action.id])
+          Promise.resolve(this.router.navigate([urlTree.toString(), 'details', action.id])).catch((err) =>
+            console.error(err)
+          )
         })
       )
     },
@@ -144,7 +148,9 @@ export class ChatSearchEffects {
         ofType(ChatSearchActions.chartVisibilityToggled),
         concatLatestFrom(() => this.store.select(selectChatSearchViewModel)),
         map(([, viewModel]) => {
-          this.exportDataService.exportCsv(viewModel.displayedColumns, viewModel.results, 'Chat.csv')
+          Promise.resolve(
+            this.exportDataService.exportCsv(viewModel.displayedColumns, viewModel.results, 'Chat.csv')
+          ).catch((err) => console.error(err))
         })
       )
     },

@@ -59,6 +59,18 @@ describe('OneCXChatPanelComponent', () => {
       setUp()
       expect(component).toBeTruthy()
     })
+
+    it('should render the inline chat assistant', () => {
+      setUp()
+
+      expect(fixture.nativeElement.querySelector('app-chat-assistant .chat-panel')).not.toBeNull()
+    })
+
+    it('should render the panel collapsed until it is opened', () => {
+      setUp()
+
+      expect(fixture.nativeElement.querySelector('.chat-panel-open')).toBeNull()
+    })
   })
 
   describe('ocxInitRemoteComponent', () => {

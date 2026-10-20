@@ -33,8 +33,8 @@ export class VoiceService implements OnDestroy {
   private micStreamIsOwned = false
   private timers: Array<ReturnType<typeof setTimeout>> = []
 
-  async start(chatId: string): Promise<void> {
-    if (this.isConnected()) return
+  start(chatId: string): Promise<void> {
+    if (this.isConnected()) return Promise.resolve()
 
     this.isConnecting.set(true)
 
@@ -47,6 +47,8 @@ export class VoiceService implements OnDestroy {
       void this.acquireMic()
       this.runScriptedExchange()
     }, 600)
+
+    return Promise.resolve()
   }
 
   toggleMute(): void {

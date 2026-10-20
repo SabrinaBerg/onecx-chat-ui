@@ -21,7 +21,7 @@ class FakeSource {
 
 class FakeAudioContext {
   static instance?: FakeAudioContext
-  readonly close = jest.fn()
+  readonly close = jest.fn().mockResolvedValue(undefined)
 
   static create(): FakeAudioContext {
     const ctx = new FakeAudioContext()

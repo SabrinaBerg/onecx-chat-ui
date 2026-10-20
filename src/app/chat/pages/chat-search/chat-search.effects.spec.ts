@@ -211,6 +211,34 @@ describe('ChatSearchEffects', () => {
     })
   })
 
+  describe('syncParamsToUrl$ error handling', () => {
+    it('should log an error when router.navigate rejects', async () => {
+      const error = new Error('navigation failed')
+      const logSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+
+      store.overrideSelector(chatSearchSelectors.selectCriteria, mockSearchCriteria)
+      store.refreshState()
+      Object.defineProperty(route, 'queryParams', {
+        value: of({}),
+        writable: true
+      })
+      ;(router.navigate as jest.Mock).mockRejectedValueOnce(error)
+      actions$ = of(ChatSearchActions.searchButtonClicked({ searchCriteria: mockSearchCriteria }))
+
+      effects.syncParamsToUrl$.subscribe()
+      await Promise.resolve()
+
+      expect(router.navigate).toHaveBeenCalledWith([], {
+        relativeTo: route,
+        queryParams: mockSearchCriteria,
+        replaceUrl: true,
+        onSameUrlNavigation: 'ignore'
+      })
+      expect(logSpy).toHaveBeenCalledWith(error)
+      logSpy.mockRestore()
+    })
+  })
+
   describe('searchByUrl$', () => {
     const createRouterAction = () =>
       routerNavigatedAction({
@@ -333,6 +361,27 @@ describe('ChatSearchEffects', () => {
         if (effectsCompleted === 2) done()
       })
     })
+
+    it('should log an error when exportCsv rejects', async () => {
+      const error = new Error('export failed')
+      const logSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+
+      store.overrideSelector(chatSearchSelectors.selectChartVisible, true)
+      store.overrideSelector(selectChatSearchViewModel, mockViewModel)
+      ;(exportDataService.exportCsv as jest.Mock).mockRejectedValueOnce(error)
+      actions$ = of(ChatSearchActions.chartVisibilityToggled())
+
+      effects.exportData$.subscribe()
+      await Promise.resolve()
+
+      expect(exportDataService.exportCsv).toHaveBeenCalledWith(
+        mockViewModel.displayedColumns,
+        mockViewModel.results,
+        'Chat.csv'
+      )
+      expect(logSpy).toHaveBeenCalledWith(error)
+      logSpy.mockRestore()
+    })
   })
 
   describe('displayError$', () => {
@@ -420,6 +469,27 @@ describe('ChatSearchEffects', () => {
         expect(router.navigate).toHaveBeenCalledWith([currentUrl.toString(), 'details', id])
         done()
       })
+    })
+
+    it('should log an error when details navigation rejects', async () => {
+      const error = new Error('details navigation failed')
+      const logSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+      const id = '12345'
+
+      jest.mocked(router.parseUrl).mockReturnValue({
+        toString: () => '/chat-search',
+        queryParams: {},
+        fragment: null
+      } as any)
+      ;(router.navigate as jest.Mock).mockRejectedValueOnce(error)
+      actions$ = of(ChatSearchActions.detailsButtonClicked({ id }))
+
+      effects.detailsButtonClicked$.subscribe()
+      await Promise.resolve()
+
+      expect(router.navigate).toHaveBeenCalledWith(['/chat-search', 'details', id])
+      expect(logSpy).toHaveBeenCalledWith(error)
+      logSpy.mockRestore()
     })
   })
 

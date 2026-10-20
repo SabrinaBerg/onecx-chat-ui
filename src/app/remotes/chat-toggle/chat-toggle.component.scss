@@ -1,0 +1,16 @@
+:host ::ng-deep {
+  .chat-button {
+    color: var(--topbar-item-text-color) !important;
+
+    .pi {
+      font-size: 2rem !important;
+    }
+
+    &:hover,
+    &:focus {
+      color: var(--topbar-item-text-hover-color) !important;
+      background-color: var(--topbar-item-text-hover-bg-color) !important;
+      transition: background-color var(--transition-duration);
+    }
+  }
+}

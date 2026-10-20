@@ -76,4 +76,4 @@ bootstrapRemoteComponent(
     ChatInternalService
   ],
   { usePortalLayoutStyles: false }
-)
+).catch((err) => console.error(err))

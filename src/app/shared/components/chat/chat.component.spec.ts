@@ -162,6 +162,14 @@ describe('ChatComponent', () => {
 
       expect(textarea.disabled).toBe(true)
     })
+
+    it('should keep scrolling inside the message history', () => {
+      const chatContainer: HTMLElement = fixture.nativeElement.querySelector('.chat-container')
+      const historyContainer: HTMLElement = fixture.nativeElement.querySelector('.chat-history-container')
+
+      expect(chatContainer.classList).toContain('overflow-hidden')
+      expect(historyContainer.classList).toContain('overflow-y-auto')
+    })
   })
 
   describe('retrySending', () => {
