@@ -48,11 +48,9 @@ export function slotInitializer(slotService: SlotService) {
     PortalMessageService,
     ChatsService
   ],
-  styles: `
-    :host {
-      height: 100%;
-    }
-  `,
+  host: {
+    style: 'display: block; flex: 0 0 auto; height: 100%; min-height: 0; overflow: hidden; align-self: stretch;'
+  },
   templateUrl: './chat-panel.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })

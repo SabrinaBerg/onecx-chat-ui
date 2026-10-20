@@ -111,7 +111,7 @@ export class ChatComponent implements AfterViewInit, AfterViewChecked, OnChanges
   public formGroup: FormGroup
   public isAtBottom = true
   public unreadCount = 0
-  private scrollAfterRender = false
+  private scrollAfterRender: ScrollBehavior | null = null
 
   constructor(
     private readonly translateService: TranslateService,
@@ -135,7 +135,7 @@ export class ChatComponent implements AfterViewInit, AfterViewChecked, OnChanges
     const chatIdChange = changes['chatId']
     if (chatIdChange && chatIdChange.previousValue !== chatIdChange.currentValue) {
       this.unreadCount = 0
-      this.scrollAfterRender = true
+      this.scrollAfterRender = 'auto'
       return
     }
 
@@ -143,7 +143,7 @@ export class ChatComponent implements AfterViewInit, AfterViewChecked, OnChanges
     if (!messagesChange) return
 
     if (messagesChange.firstChange) {
-      this.scrollAfterRender = true
+      this.scrollAfterRender = 'auto'
       return
     }
 
@@ -153,7 +153,7 @@ export class ChatComponent implements AfterViewInit, AfterViewChecked, OnChanges
     if (addedMessageCount === 0) return
 
     if (this.isAtBottom) {
-      this.scrollAfterRender = true
+      this.scrollAfterRender = 'smooth'
     } else {
       this.unreadCount += addedMessageCount
       this.changeDetectorRef.markForCheck()
@@ -167,10 +167,11 @@ export class ChatComponent implements AfterViewInit, AfterViewChecked, OnChanges
   }
 
   ngAfterViewChecked(): void {
-    if (!this.scrollAfterRender) return
+    const scrollBehavior = this.scrollAfterRender
+    if (!scrollBehavior) return
 
-    this.scrollAfterRender = false
-    this.scrollToLatest()
+    this.scrollAfterRender = null
+    this.scrollToLatest(scrollBehavior)
   }
 
   get agentsForDropdown() {
@@ -199,9 +200,9 @@ export class ChatComponent implements AfterViewInit, AfterViewChecked, OnChanges
     this.voiceChatStopped.emit()
   }
 
-  scrollToLatest(): void {
+  scrollToLatest(behavior: ScrollBehavior = 'smooth'): void {
     this.unreadCount = 0
-    this.chatScrollService.scrollToBottom()
+    this.chatScrollService.scrollToBottom(behavior)
     this.chatScrollService.resetToBottom()
     this.changeDetectorRef.markForCheck()
   }
