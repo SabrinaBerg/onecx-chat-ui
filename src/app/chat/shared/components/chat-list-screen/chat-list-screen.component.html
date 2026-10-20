@@ -83,20 +83,9 @@
             </p-scroller>
           }
         </ng-template>
-        <p-tabs [value]="0">
-          <p-tablist>
-            <p-tab [value]="0">{{ 'CHAT.LIST.RELATED_CHATS' | translate }}</p-tab>
-            <p-tab [value]="1">{{ 'CHAT.LIST.ALL_CHATS' | translate }}</p-tab>
-          </p-tablist>
-          <p-tabpanels>
-            <p-tabpanel [value]="0">
-              <ng-container *ngTemplateOutlet="chatListContent"></ng-container>
-            </p-tabpanel>
-            <p-tabpanel [value]="1">
-              <ng-container *ngTemplateOutlet="chatListContent"></ng-container>
-            </p-tabpanel>
-          </p-tabpanels>
-        </p-tabs>
+        <div class="chat-list-container">
+          <ng-container *ngTemplateOutlet="chatListContent"></ng-container>
+        </div>
         @if (isLoading()) {
           <div class="flex justify-content-center" id="chat_list_bottom_loader">
             <span class="loader"></span>

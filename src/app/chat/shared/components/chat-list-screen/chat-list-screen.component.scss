@@ -14,39 +14,16 @@
   border: 0;
 }
 
-:host ::ng-deep .p-tablist .p-tab {
-  flex: 1;
-  justify-content: center;
-}
-
 :host ::ng-deep .p-avatar {
   border-radius: 50% !important;
 }
 
-:host ::ng-deep .p-tabs {
+.chat-list-container {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
-}
-
-:host ::ng-deep .p-tabs .p-tabpanels {
-  padding: 0 !important;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-}
-
-:host ::ng-deep .p-tabpanel[data-p-active='true'] {
-  display: flex !important;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-}
-
-:host ::ng-deep .p-tablist {
-  overflow-x: hidden !important;
+  width: 100%;
 }
 
 :host ::ng-deep #chat_list_bottom_loader {

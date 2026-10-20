@@ -402,7 +402,7 @@ describe('ChatListScreenComponent', () => {
     it('never mutates the scroller container when loading toggles (no height/scrollbar flicker)', () => {
       setAssistantState({ isLoading: false })
       fixture.detectChanges()
-      const panel = fixture.debugElement.query(By.css('.p-tabpanels'))
+      const panel = fixture.debugElement.query(By.css('.chat-list-container'))
       const before = { className: panel.nativeElement.className, style: panel.nativeElement.style.cssText }
 
       setAssistantState({ isLoading: true })

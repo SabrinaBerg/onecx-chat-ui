@@ -147,8 +147,6 @@
     "LIST": {
       "SEARCH_PLACEHOLDER": "Search Chats...",
       "SEARCH_INPUT": "Search Chat by Chat Name",
-      "RELATED_CHATS": "Related Chats",
-      "ALL_CHATS": "All Chats",
       "AI": "AI",
       "START": "Start",
       "NO_MATCHING_CHATS": "No matching chats found",
